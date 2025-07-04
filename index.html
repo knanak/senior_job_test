@@ -237,6 +237,7 @@
             margin-bottom: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .job-item:hover {
@@ -288,6 +289,83 @@
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
+        }
+
+        .qualification-screen {
+            display: none;
+            animation: fadeIn 0.8s ease;
+            text-align: center;
+        }
+
+        .qualification-screen h2 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .selected-job {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .selected-job-name {
+            color: #667eea;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .qualification-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .qual-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .qual-option:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .qual-option h3 {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .qual-option p {
+            color: #666;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .back-to-results {
+            margin-top: 30px;
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-results:hover {
+            background: #dee2e6;
         }
 
         @keyframes fadeIn {
@@ -351,7 +429,7 @@
     <div class="container">
         <div class="header">
             <h1>시니어 재취업 적성 검사</h1>
-            <p>10개의 질문으로 찾는 나에게 딱 맞는 직업 찾기</p>
+            <p>10개의 질문으로 찾는 나에게 딱 맞는 직업</p>
         </div>
         
         <div class="progress-bar">
@@ -387,6 +465,26 @@
                 <div class="recommended-jobs" id="recommendedJobs"></div>
                 <button class="restart-btn" onclick="restartTest()">다시 검사하기</button>
             </div>
+            
+            <!-- 자격증/경력 확인 화면 -->
+            <div class="qualification-screen" id="qualificationScreen">
+                <h2>선택하신 직업</h2>
+                <div class="selected-job">
+                    <div class="selected-job-name" id="selectedJobName"></div>
+                </div>
+                <h2 style="margin-top: 30px;">관련 경력이나 자격증이 있으신가요?</h2>
+                <div class="qualification-options">
+                    <div class="qual-option" onclick="handleQualification(true)">
+                        <h3>📋 경력이나 자격증이 있음</h3>
+                        <p>관련 분야의 경력이나 자격증을 보유하고 있어 바로 지원 가능합니다.</p>
+                    </div>
+                    <div class="qual-option" onclick="handleQualification(false)">
+                        <h3>📚 경력이나 자격증이 없음</h3>
+                        <p>새롭게 도전하고자 하며, 필요시 교육이나 자격증 취득을 고려하고 있습니다.</p>
+                    </div>
+                </div>
+                <button class="back-to-results" onclick="backToResults()">다른 직업 보기</button>
+            </div>
         </div>
     </div>
 
@@ -401,7 +499,7 @@
             "건설 단순 종사원": { category: "건설", physical: "high", social: "low", stress: "low", skill: "low", description: "건설 현장에서 자재 운반 등 보조 업무를 담당합니다." },
             "건설수주 영업원": { category: "영업", physical: "low", social: "high", stress: "high", skill: "high", description: "건설 프로젝트 수주를 위한 영업 활동을 수행합니다." },
             "건축설비 기술자": { category: "기술직", physical: "medium", social: "medium", stress: "high", skill: "high", description: "건축물의 전기, 기계 설비를 설계하고 시공을 관리합니다." },
-            "경비원": { category: "보안", physical: "medium", social: "medium", stress: "low", skill: "low", description: "건물이나 시설의 안전을 지키고 출입을 관리합니다." },
+            "경비원": { category: "보안", physical: "low", social: "medium", stress: "low", skill: "low", description: "건물이나 시설의 안전을 지키고 출입을 관리합니다." },
             "공업기계 정비원": { category: "기술직", physical: "high", social: "low", stress: "medium", skill: "high", description: "산업용 기계의 정비와 수리를 담당합니다." },
             "기숙사사감": { category: "관리직", physical: "low", social: "high", stress: "medium", skill: "medium", description: "기숙사 생활 지도와 시설 관리를 담당합니다." },
             "돌봄 종사원": { category: "돌봄서비스", physical: "medium", social: "high", stress: "medium", skill: "medium", description: "아동, 노인 등 돌봄이 필요한 대상자를 케어합니다." },
@@ -528,6 +626,7 @@
         let currentQuestion = 0;
         let answers = [];
         let selectedOption = null;
+        let selectedJob = null;
 
         function startTest() {
             document.getElementById('startScreen').style.display = 'none';
@@ -701,6 +800,7 @@
                 const jobInfo = jobCategories[result.job];
                 const jobDiv = document.createElement('div');
                 jobDiv.className = 'job-item';
+                jobDiv.onclick = () => selectJob(result.job);
                 jobDiv.innerHTML = `
                     <div>
                         <span class="job-rank">${index + 1}</span>
@@ -717,10 +817,180 @@
             currentQuestion = 0;
             answers = [];
             selectedOption = null;
+            selectedJob = null;
             
             document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('qualificationScreen').style.display = 'none';
             document.getElementById('startScreen').style.display = 'block';
             document.getElementById('progressFill').style.width = '0%';
+        }
+        
+        function selectJob(job) {
+            selectedJob = job;
+            document.getElementById('selectedJobName').textContent = job;
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('qualificationScreen').style.display = 'block';
+        }
+        
+        function handleQualification(hasQualification) {
+            if (hasQualification) {
+                // 고용24로 이동
+                const excludeKeywords = ['요양', '미화원', '경비', '보안', '운전', '관리소장', '청소원', '시설'];
+                const baseUrl = 'https://www.work24.go.kr/wk/a/b/1200/retriveDtlEmpSrchList.do';
+                const params = new URLSearchParams({
+                    'srcKeyword': selectedJob,
+                    'notSrcKeyword': excludeKeywords.join(','),
+                    'region': '11000',
+                    'regionParam': '11000',
+                    'codeDepth1Info': '11000',
+                    'codeDepth2Info': '11000',
+                    'resultCnt': '10',
+                    'sortField': 'DATE',
+                    'sortOrderBy': 'DESC',
+                    'siteClcd': 'all',
+                    'searchMode': 'Y',
+                    'academicGbnoEdu': 'noEdu',
+                    'pageIndex': '1',
+                    'currentPageNo': '1'
+                });
+                
+                // 새 창에서 고용24 검색 결과 열기
+                const searchUrl = `${baseUrl}?${params.toString()}#scrollLoc`;
+                
+                // 안내 모달 표시
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.7);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    max-width: 500px;
+                    text-align: center;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                `;
+                
+                modalContent.innerHTML = `
+                    <h2 style="color: #333; margin-bottom: 20px;">${selectedJob} 일자리 찾기</h2>
+                    <p style="color: #666; line-height: 1.8; margin-bottom: 30px;">
+                        고용24(Work24) 사이트에서<br>
+                        <strong style="color: #667eea;">"${selectedJob}"</strong> 관련 일자리를 검색합니다.<br><br>
+                        새 창에서 검색 결과를 확인하실 수 있습니다.
+                    </p>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button onclick="window.open('${searchUrl}', '_blank'); document.body.removeChild(this.parentElement.parentElement.parentElement);" 
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                       color: white; 
+                                       border: none; 
+                                       padding: 15px 30px; 
+                                       border-radius: 50px; 
+                                       cursor: pointer;
+                                       font-size: 1.1em;">
+                            고용24에서 검색하기
+                        </button>
+                        <button onclick="document.body.removeChild(this.parentElement.parentElement.parentElement);" 
+                                style="background: #e9ecef; 
+                                       color: #495057; 
+                                       border: none; 
+                                       padding: 15px 30px; 
+                                       border-radius: 50px; 
+                                       cursor: pointer;
+                                       font-size: 1.1em;">
+                            취소
+                        </button>
+                    </div>
+                `;
+                
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+                
+            } else {
+                // 교육 프로그램 안내 모달
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.7);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    max-width: 500px;
+                    text-align: center;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                `;
+                
+                // 직업별 교육 정보
+                const educationInfo = {
+                    "요양보호사": "요양보호사 자격증 교육기관에서 240시간 교육 이수 후 자격시험 응시",
+                    "방과후 교사": "방과후학교 지도사 자격증 과정 또는 관련 분야 전문성 개발",
+                    "시니어강사": "서울시 50플러스재단, 한국문화예술교육진흥원 등에서 강사 양성 과정 운영",
+                    "경비원": "일반경비원 신임교육 24시간 이수 필수",
+                    "간호조무사": "간호조무사 교육원에서 1,520시간 교육 후 국가시험 응시",
+                    "사회복지사": "사회복지사 2급 자격증 취득을 위한 교육과정 이수",
+                    "조리사": "한식/양식/중식 조리기능사 자격증 취득 과정",
+                    "전기관리원": "전기기능사 또는 전기산업기사 자격증 취득"
+                };
+                
+                const defaultInfo = "관련 교육기관이나 직업훈련원에서 교육 프로그램을 확인해보세요.";
+                const education = educationInfo[selectedJob] || defaultInfo;
+                
+                modalContent.innerHTML = `
+                    <h2 style="color: #333; margin-bottom: 20px;">${selectedJob} 교육 안내</h2>
+                    <p style="color: #666; line-height: 1.8; margin-bottom: 20px;">
+                        <strong style="color: #667eea;">${selectedJob}</strong> 분야에 새롭게 도전하시는군요!
+                    </p>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <p style="color: #495057; line-height: 1.6; margin: 0;">
+                            ${education}
+                        </p>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">
+                        시니어 대상 무료 교육 프로그램도 많이 있으니<br>
+                        지역 고용센터나 50플러스센터에 문의해보세요.
+                    </p>
+                    <button onclick="document.body.removeChild(this.parentElement.parentElement);" 
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                   color: white; 
+                                   border: none; 
+                                   padding: 15px 30px; 
+                                   border-radius: 50px; 
+                                   cursor: pointer;
+                                   font-size: 1.1em;">
+                        확인
+                    </button>
+                `;
+                
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+            }
+        }
+        
+        function backToResults() {
+            document.getElementById('qualificationScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
         }
     </script>
 </body>
