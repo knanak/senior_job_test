@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시니어 재취업 적성 검사 - 나에게 맞는 직업 찾기</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👔</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .start-screen {
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .start-screen h2 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .start-screen p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .question-screen {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            color: #333;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            background: #f0f2ff;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-color: #667eea;
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+
+        .option-text {
+            color: #333;
+            font-size: 1.1em;
+            display: inline-block;
+            vertical-align: middle;
+            width: calc(100% - 70px);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #dee2e6;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-btn.next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-screen {
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .result-title {
+            text-align: center;
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+
+        .recommended-jobs {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .job-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .job-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .job-rank {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 600;
+            margin-right: 15px;
+            font-size: 0.9em;
+        }
+
+        .job-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .job-match {
+            color: #667eea;
+            font-weight: 600;
+            float: right;
+        }
+
+        .job-description {
+            color: #666;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .restart-btn {
+            display: block;
+            margin: 30px auto 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .question-text {
+                font-size: 1.2em;
+            }
+            
+            .option-text {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>시니어 재취업 적성 검사</h1>
+            <p>10개의 질문으로 찾는 나에게 딱 맞는 직업</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="content">
+            <!-- 시작 화면 -->
+            <div class="start-screen" id="startScreen">
+                <h2>환영합니다!</h2>
+                <p>
+                    이 검사는 귀하의 경험, 선호도, 역량을 바탕으로<br>
+                    50대 이상 시니어에게 적합한 재취업 직종을 추천해드립니다.<br><br>
+                    총 10개의 질문에 답해주시면,<br>
+                    가장 적합한 직업 3가지를 추천해드립니다.
+                </p>
+                <button class="btn" onclick="startTest()">검사 시작하기</button>
+            </div>
+            
+            <!-- 질문 화면 -->
+            <div class="question-screen" id="questionScreen">
+                <div class="question-number" id="questionNumber">질문 1/10</div>
+                <h2 class="question-text" id="questionText"></h2>
+                <div class="options" id="options"></div>
+                <div class="navigation">
+                    <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">이전</button>
+                </div>
+            </div>
+            
+            <!-- 결과 화면 -->
+            <div class="result-screen" id="resultScreen">
+                <h2 class="result-title">당신에게 추천하는 직업</h2>
+                <div class="recommended-jobs" id="recommendedJobs"></div>
+                <button class="restart-btn" onclick="restartTest()">다시 검사하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 직업 카테고리와 설명
+        const jobCategories = {
+            "가사 도우미": { category: "돌봄서비스", physical: "medium", social: "high", stress: "low", skill: "low", description: "가정의 청소, 정리, 세탁 등 가사 업무를 전문적으로 수행합니다." },
+            "간병인": { category: "의료돌봄", physical: "high", social: "high", stress: "high", skill: "medium", description: "병원이나 가정에서 환자를 돌보고 일상생활을 지원합니다." },
+            "간호조무사": { category: "의료돌봄", physical: "medium", social: "high", stress: "high", skill: "high", description: "의료기관에서 간호사를 보조하여 환자 케어를 담당합니다." },
+            "건물 관리원": { category: "시설관리", physical: "medium", social: "low", stress: "low", skill: "medium", description: "건물의 시설물을 점검하고 유지보수를 관리합니다." },
+            "건물 보수원": { category: "기술직", physical: "high", social: "low", stress: "medium", skill: "high", description: "건물의 손상된 부분을 수리하고 보수작업을 수행합니다." },
+            "건설 단순 종사원": { category: "건설", physical: "high", social: "low", stress: "low", skill: "low", description: "건설 현장에서 자재 운반 등 보조 업무를 담당합니다." },
+            "건설수주 영업원": { category: "영업", physical: "low", social: "high", stress: "high", skill: "high", description: "건설 프로젝트 수주를 위한 영업 활동을 수행합니다." },
+            "건축설비 기술자": { category: "기술직", physical: "medium", social: "medium", stress: "high", skill: "high", description: "건축물의 전기, 기계 설비를 설계하고 시공을 관리합니다." },
+            "경비원": { category: "보안", physical: "low", social: "medium", stress: "low", skill: "low", description: "건물이나 시설의 안전을 지키고 출입을 관리합니다." },
+            "공업기계 정비원": { category: "기술직", physical: "high", social: "low", stress: "medium", skill: "high", description: "산업용 기계의 정비와 수리를 담당합니다." },
+            "기숙사사감": { category: "관리직", physical: "low", social: "high", stress: "medium", skill: "medium", description: "기숙사 생활 지도와 시설 관리를 담당합니다." },
+            "돌봄 종사원": { category: "돌봄서비스", physical: "medium", social: "high", stress: "medium", skill: "medium", description: "아동, 노인 등 돌봄이 필요한 대상자를 케어합니다." },
+            "미디어 콘텐츠 디자이너": { category: "창의직", physical: "low", social: "low", stress: "medium", skill: "high", description: "디지털 콘텐츠와 미디어 자료를 제작합니다." },
+            "방과후 교사": { category: "교육", physical: "low", social: "high", stress: "medium", skill: "high", description: "학교 방과후 프로그램에서 학생들을 지도합니다." },
+            "방역원": { category: "위생관리", physical: "medium", social: "low", stress: "low", skill: "medium", description: "해충 방제와 소독 업무를 수행합니다." },
+            "배송 운전원": { category: "운송", physical: "medium", social: "low", stress: "medium", skill: "low", description: "물품을 목적지까지 안전하게 배송합니다." },
+            "버스 운전원": { category: "운송", physical: "medium", social: "medium", stress: "high", skill: "medium", description: "시내버스나 관광버스를 운전합니다." },
+            "보건의료 서비스 종사원": { category: "의료돌봄", physical: "medium", social: "high", stress: "medium", skill: "medium", description: "의료기관에서 환자 지원 서비스를 제공합니다." },
+            "보안 관제원": { category: "보안", physical: "low", social: "low", stress: "medium", skill: "medium", description: "CCTV 등을 통해 시설의 보안을 모니터링합니다." },
+            "보안 종사원": { category: "보안", physical: "medium", social: "medium", stress: "medium", skill: "low", description: "시설의 보안과 안전 관리 업무를 수행합니다." },
+            "사회복지사": { category: "복지", physical: "low", social: "high", stress: "high", skill: "high", description: "복지 대상자의 상담과 지원 서비스를 제공합니다." },
+            "산업 안전원": { category: "안전관리", physical: "medium", social: "medium", stress: "high", skill: "high", description: "작업장의 안전을 관리하고 사고를 예방합니다." },
+            "서비스 단순 종사원": { category: "서비스", physical: "medium", social: "medium", stress: "low", skill: "low", description: "다양한 서비스 분야에서 보조 업무를 수행합니다." },
+            "승합차 운전원": { category: "운송", physical: "medium", social: "medium", stress: "low", skill: "low", description: "승합차를 운전하여 승객을 운송합니다." },
+            "영업 지원 사무원": { category: "사무직", physical: "low", social: "medium", stress: "medium", skill: "medium", description: "영업팀의 행정 업무를 지원합니다." },
+            "요양보호사": { category: "돌봄서비스", physical: "high", social: "high", stress: "medium", skill: "medium", description: "노인의 일상생활을 돕고 요양 서비스를 제공합니다." },
+            "음식서비스 종사원": { category: "요식업", physical: "medium", social: "high", stress: "medium", skill: "low", description: "음식점에서 서빙과 고객 서비스를 담당합니다." },
+            "전기관리원": { category: "기술직", physical: "medium", social: "low", stress: "high", skill: "high", description: "전기 설비의 안전 관리와 점검을 수행합니다." },
+            "조리사": { category: "요식업", physical: "high", social: "medium", stress: "high", skill: "high", description: "음식을 조리하고 메뉴를 개발합니다." },
+            "주방 보조원": { category: "요식업", physical: "high", social: "low", stress: "medium", skill: "low", description: "주방에서 조리 보조와 청소를 담당합니다." },
+            "주차 관리원": { category: "시설관리", physical: "medium", social: "medium", stress: "low", skill: "low", description: "주차장 관리와 주차 안내를 담당합니다." },
+            "청소원": { category: "위생관리", physical: "high", social: "low", stress: "low", skill: "low", description: "건물이나 시설의 청소와 위생 관리를 수행합니다." },
+            "택시 운전원": { category: "운송", physical: "medium", social: "medium", stress: "medium", skill: "low", description: "택시를 운전하여 승객을 목적지까지 운송합니다." },
+            "품질관리 사무원": { category: "사무직", physical: "low", social: "low", stress: "medium", skill: "high", description: "제품이나 서비스의 품질을 검사하고 관리합니다." },
+            "환경 미화원": { category: "위생관리", physical: "high", social: "low", stress: "low", skill: "low", description: "거리나 공공장소의 청소와 환경 미화를 담당합니다." },
+            "시니어강사": { category: "교육", physical: "low", social: "high", stress: "medium", skill: "high", description: "경험과 전문성을 바탕으로 다양한 분야의 강의를 진행합니다." }
+        };
+
+        // 질문 데이터
+        const questions = [
+            {
+                text: "하루 중 가장 활력이 넘치는 시간대는 언제인가요?",
+                options: [
+                    { text: "아침 일찍 (오전 6-9시)", value: { physical: 2, morning: 3 } },
+                    { text: "오전 중 (오전 9-12시)", value: { physical: 1, morning: 2 } },
+                    { text: "오후 (오후 12-6시)", value: { physical: 1, morning: 1 } },
+                    { text: "저녁 (오후 6시 이후)", value: { physical: 0, morning: 0 } }
+                ]
+            },
+            {
+                text: "사람들과 함께 일하는 것을 얼마나 좋아하시나요?",
+                options: [
+                    { text: "매우 좋아함 - 늘 사람들과 함께 있고 싶음", value: { social: 3 } },
+                    { text: "좋아함 - 적당한 교류를 선호", value: { social: 2 } },
+                    { text: "보통 - 혼자 일하는 것도 괜찮음", value: { social: 1 } },
+                    { text: "혼자 일하는 것을 선호", value: { social: 0 } }
+                ]
+            },
+            {
+                text: "육체적 활동에 대한 선호도는 어떠신가요?",
+                options: [
+                    { text: "활발한 육체 활동을 선호", value: { physical: 3 } },
+                    { text: "적당한 움직임이 있는 일을 선호", value: { physical: 2 } },
+                    { text: "가벼운 활동 정도만 선호", value: { physical: 1 } },
+                    { text: "주로 앉아서 하는 일을 선호", value: { physical: 0 } }
+                ]
+            },
+            {
+                text: "어떤 분야에서 일하고 싶으신가요?",
+                options: [
+                    { text: "돌봄/복지 분야 (사람을 직접 돕는 일)", value: { care: 3, service: 2 } },
+                    { text: "교육/지도 분야 (지식과 경험 전달)", value: { education: 3, social: 2 } },
+                    { text: "기술/관리 분야 (시설이나 장비 관리)", value: { technical: 3, physical: 1 } },
+                    { text: "서비스/영업 분야 (고객 응대)", value: { service: 3, social: 2 } }
+                ]
+            },
+            {
+                text: "근무 환경으로 선호하는 곳은?",
+                options: [
+                    { text: "실내 사무실이나 시설", value: { indoor: 3, physical: 0 } },
+                    { text: "실내외를 오가며 일하는 환경", value: { indoor: 2, physical: 1 } },
+                    { text: "주로 야외에서 일하는 환경", value: { outdoor: 3, physical: 2 } },
+                    { text: "이동하며 일하는 환경 (운전 등)", value: { mobile: 3, physical: 1 } }
+                ]
+            },
+            {
+                text: "자격증이나 특별한 기술 습득에 대한 의향은?",
+                options: [
+                    { text: "적극적으로 새로운 자격증 취득 희망", value: { learning: 3 } },
+                    { text: "필요하다면 간단한 교육 이수 가능", value: { learning: 2 } },
+                    { text: "기존 경험을 활용하고 싶음", value: { learning: 1 } },
+                    { text: "특별한 교육 없이 바로 일하고 싶음", value: { learning: 0 } }
+                ]
+            },
+            {
+                text: "선호하는 근무 시간대는?",
+                options: [
+                    { text: "정규 근무 시간 (9 to 6)", value: { regular: 3 } },
+                    { text: "파트타임 (하루 2-4시간)", value: { parttime: 3 } },
+                    { text: "교대 근무도 가능", value: { shift: 3 } },
+                    { text: "유연한 근무 시간 선호", value: { flexible: 3 } }
+                ]
+            },
+            {
+                text: "책임감의 정도는 어느 정도를 원하시나요?",
+                options: [
+                    { text: "높은 책임감과 자율성을 가진 업무", value: { responsibility: 3 } },
+                    { text: "적당한 책임감이 있는 업무", value: { responsibility: 2 } },
+                    { text: "명확한 지시에 따르는 업무", value: { responsibility: 1 } },
+                    { text: "단순하고 반복적인 업무", value: { responsibility: 0 } }
+                ]
+            },
+            {
+                text: "소득 수준과 일의 만족도 중 무엇이 더 중요한가요?",
+                options: [
+                    { text: "소득이 가장 중요", value: { income: 3 } },
+                    { text: "소득도 중요하지만 일의 보람도 중요", value: { income: 2, satisfaction: 2 } },
+                    { text: "일의 보람과 만족이 더 중요", value: { satisfaction: 3 } },
+                    { text: "사회 기여와 봉사 정신이 중요", value: { service: 3, satisfaction: 2 } }
+                ]
+            },
+            {
+                text: "과거 경력이나 특기가 있다면 어떤 분야인가요?",
+                options: [
+                    { text: "사무/관리/행정 분야", value: { office: 3 } },
+                    { text: "기술/생산/제조 분야", value: { technical: 3 } },
+                    { text: "서비스/판매/영업 분야", value: { service: 3 } },
+                    { text: "특별한 경력 없음/새로운 도전 희망", value: { new: 3 } }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+        let selectedOption = null;
+
+        function startTest() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('questionScreen').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `질문 ${currentQuestion + 1}/10`;
+            document.getElementById('questionText').textContent = question.text;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.innerHTML = `
+                    <span class="option-letter">${String.fromCharCode(65 + index)}</span>
+                    <span class="option-text">${option.text}</span>
+                `;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            updateProgress();
+            updateNavigation();
+            selectedOption = null;
+        }
+
+        function selectOption(index) {
+            selectedOption = index;
+            
+            document.querySelectorAll('.option').forEach((option, i) => {
+                option.classList.toggle('selected', i === index);
+            });
+            
+            // 선택 후 자동으로 다음 질문으로 이동
+            setTimeout(() => {
+                nextQuestion();
+            }, 300); // 300ms 지연으로 선택 효과를 보여준 후 이동
+        }
+
+        function nextQuestion() {
+            if (selectedOption === null) return;
+            
+            answers[currentQuestion] = questions[currentQuestion].options[selectedOption].value;
+            
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+        }
+
+        function calculateScores() {
+            const scores = {};
+            
+            // 각 직업별 점수 계산
+            Object.keys(jobCategories).forEach(job => {
+                scores[job] = 0;
+                const jobInfo = jobCategories[job];
+                
+                // 답변과 직업 특성 매칭
+                answers.forEach(answer => {
+                    // 신체 활동 선호도 매칭
+                    if (answer.physical !== undefined) {
+                        if (jobInfo.physical === "high" && answer.physical >= 2) scores[job] += 3;
+                        else if (jobInfo.physical === "medium" && answer.physical >= 1 && answer.physical <= 2) scores[job] += 3;
+                        else if (jobInfo.physical === "low" && answer.physical <= 1) scores[job] += 3;
+                    }
+                    
+                    // 사회적 상호작용 선호도 매칭
+                    if (answer.social !== undefined) {
+                        if (jobInfo.social === "high" && answer.social >= 2) scores[job] += 3;
+                        else if (jobInfo.social === "medium" && answer.social >= 1 && answer.social <= 2) scores[job] += 3;
+                        else if (jobInfo.social === "low" && answer.social <= 1) scores[job] += 3;
+                    }
+                    
+                    // 스트레스 내성과 책임감 매칭
+                    if (answer.responsibility !== undefined) {
+                        if (jobInfo.stress === "high" && answer.responsibility >= 2) scores[job] += 2;
+                        else if (jobInfo.stress === "medium" && answer.responsibility >= 1 && answer.responsibility <= 2) scores[job] += 2;
+                        else if (jobInfo.stress === "low" && answer.responsibility <= 1) scores[job] += 2;
+                    }
+                    
+                    // 기술 숙련도와 학습 의향 매칭
+                    if (answer.learning !== undefined) {
+                        if (jobInfo.skill === "high" && answer.learning >= 2) scores[job] += 2;
+                        else if (jobInfo.skill === "medium" && answer.learning >= 1 && answer.learning <= 2) scores[job] += 2;
+                        else if (jobInfo.skill === "low" && answer.learning <= 1) scores[job] += 2;
+                    }
+                    
+                    // 카테고리별 추가 점수
+                    if (answer.care && jobInfo.category === "돌봄서비스") scores[job] += answer.care * 2;
+                    if (answer.education && jobInfo.category === "교육") scores[job] += answer.education * 2;
+                    if (answer.technical && jobInfo.category === "기술직") scores[job] += answer.technical * 2;
+                    if (answer.service && (jobInfo.category === "서비스" || jobInfo.category === "돌봄서비스")) scores[job] += answer.service;
+                    if (answer.office && jobInfo.category === "사무직") scores[job] += answer.office * 2;
+                    
+                    // 특별 보너스
+                    if (answer.morning && jobInfo.category === "운송") scores[job] += 2;
+                    if (answer.morning && jobInfo.category === "위생관리") scores[job] += 2;
+                    if (answer.flexible && jobInfo.category === "교육") scores[job] += 2;
+                    if (answer.parttime && (job === "방과후 교사" || job === "시니어강사")) scores[job] += 3;
+                    if (answer.regular && jobInfo.category === "사무직") scores[job] += 2;
+                    if (answer.shift && jobInfo.category === "보안") scores[job] += 2;
+                    
+                    // 근무 환경 매칭
+                    if (answer.indoor && (jobInfo.category === "사무직" || jobInfo.category === "교육")) scores[job] += 2;
+                    if (answer.outdoor && (jobInfo.category === "건설" || jobInfo.category === "위생관리")) scores[job] += 2;
+                    if (answer.mobile && jobInfo.category === "운송") scores[job] += 3;
+                    
+                    // 소득과 만족도 매칭
+                    if (answer.income >= 2 && (jobInfo.category === "기술직" || jobInfo.category === "의료돌봄")) scores[job] += 1;
+                    if (answer.satisfaction >= 2 && (jobInfo.category === "교육" || jobInfo.category === "복지")) scores[job] += 1;
+                    
+                    // 경력 매칭
+                    if (answer.office && jobInfo.category === "사무직") scores[job] += 3;
+                    if (answer.technical && jobInfo.category === "기술직") scores[job] += 3;
+                    if (answer.service && (jobInfo.category === "서비스" || jobInfo.category === "요식업")) scores[job] += 3;
+                    if (answer.new && jobInfo.skill === "low") scores[job] += 2;
+                });
+            });
+            
+            // 상위 3개 직업 선택
+            const sortedJobs = Object.entries(scores)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([job, score], index) => {
+                    // 1위는 85-95%, 2위는 75-85%, 3위는 65-75%
+                    const baseRate = index === 0 ? 85 : index === 1 ? 75 : 65;
+                    const bonus = Math.min(10, Math.floor(score / 5));
+                    return { 
+                        job, 
+                        score, 
+                        matchRate: baseRate + bonus
+                    };
+                });
+            
+            return sortedJobs;
+        }
+
+        function showResults() {
+            document.getElementById('questionScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            
+            const recommendedJobs = calculateScores();
+            const jobsContainer = document.getElementById('recommendedJobs');
+            jobsContainer.innerHTML = '';
+            
+            recommendedJobs.forEach((result, index) => {
+                const jobInfo = jobCategories[result.job];
+                const jobDiv = document.createElement('div');
+                jobDiv.className = 'job-item';
+                jobDiv.innerHTML = `
+                    <div>
+                        <span class="job-rank">${index + 1}</span>
+                        <span class="job-name">${result.job}</span>
+                        <span class="job-match">${result.matchRate}% 적합</span>
+                    </div>
+                    <div class="job-description">${jobInfo.description}</div>
+                `;
+                jobsContainer.appendChild(jobDiv);
+            });
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            answers = [];
+            selectedOption = null;
+            
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+    </script>
+</body>
+</html>
