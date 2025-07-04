@@ -465,26 +465,6 @@
                 <div class="recommended-jobs" id="recommendedJobs"></div>
                 <button class="restart-btn" onclick="restartTest()">다시 검사하기</button>
             </div>
-            
-            <!-- 자격증/경력 확인 화면 -->
-            <div class="qualification-screen" id="qualificationScreen">
-                <h2>선택하신 직업</h2>
-                <div class="selected-job">
-                    <div class="selected-job-name" id="selectedJobName"></div>
-                </div>
-                <h2 style="margin-top: 30px;">관련 경력이나 자격증이 있으신가요?</h2>
-                <div class="qualification-options">
-                    <div class="qual-option" onclick="handleQualification(true)">
-                        <h3>📋 경력이나 자격증이 있음</h3>
-                        <p>관련 분야의 경력이나 자격증을 보유하고 있어 바로 지원 가능합니다.</p>
-                    </div>
-                    <div class="qual-option" onclick="handleQualification(false)">
-                        <h3>📚 경력이나 자격증이 없음</h3>
-                        <p>새롭게 도전하고자 하며, 필요시 교육이나 자격증 취득을 고려하고 있습니다.</p>
-                    </div>
-                </div>
-                <button class="back-to-results" onclick="backToResults()">다른 직업 보기</button>
-            </div>
         </div>
     </div>
 
@@ -827,9 +807,92 @@
         
         function selectJob(job) {
             selectedJob = job;
-            document.getElementById('selectedJobName').textContent = job;
-            document.getElementById('resultScreen').style.display = 'none';
-            document.getElementById('qualificationScreen').style.display = 'block';
+            
+            // 선택 모달 생성
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                max-width: 500px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            `;
+            
+            modalContent.innerHTML = `
+                <h2 style="color: #333; margin-bottom: 10px;">선택하신 직업</h2>
+                <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+                            border-radius: 15px;
+                            padding: 20px;
+                            margin-bottom: 30px;">
+                    <div style="color: #667eea; font-size: 1.4em; font-weight: 600;">${job}</div>
+                </div>
+                <h3 style="color: #333; margin-bottom: 20px;">관련 경력이나 자격증이 있으신가요?</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div onclick="handleQualification(true); document.body.removeChild(this.parentElement.parentElement.parentElement);"
+                         style="background: white;
+                                border: 2px solid #e9ecef;
+                                border-radius: 15px;
+                                padding: 20px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);"
+                         onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 5px 20px rgba(102, 126, 234, 0.2)';"
+                         onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0, 0, 0, 0.05)';">
+                        <h4 style="color: #333; font-size: 1.2em; margin-bottom: 10px;">📋 경력이나 자격증이 있음</h4>
+                        <p style="color: #666; font-size: 0.95em; line-height: 1.5; margin: 0;">
+                            관련 분야의 경력이나 자격증을 보유하고 있어 바로 지원 가능합니다.
+                        </p>
+                    </div>
+                    <div onclick="handleQualification(false); document.body.removeChild(this.parentElement.parentElement.parentElement);"
+                         style="background: white;
+                                border: 2px solid #e9ecef;
+                                border-radius: 15px;
+                                padding: 20px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);"
+                         onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 5px 20px rgba(102, 126, 234, 0.2)';"
+                         onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0, 0, 0, 0.05)';">
+                        <h4 style="color: #333; font-size: 1.2em; margin-bottom: 10px;">📚 경력이나 자격증이 없음</h4>
+                        <p style="color: #666; font-size: 0.95em; line-height: 1.5; margin: 0;">
+                            새롭게 도전하고자 하며, 필요시 교육이나 자격증 취득을 고려하고 있습니다.
+                        </p>
+                    </div>
+                </div>
+                <button onclick="document.body.removeChild(this.parentElement.parentElement);" 
+                        style="margin-top: 20px;
+                               background: #e9ecef;
+                               color: #495057;
+                               border: none;
+                               padding: 12px 30px;
+                               font-size: 1em;
+                               border-radius: 50px;
+                               cursor: pointer;
+                               transition: all 0.3s ease;"
+                        onmouseover="this.style.background='#dee2e6';"
+                        onmouseout="this.style.background='#e9ecef';">
+                    취소
+                </button>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
         }
         
         function handleQualification(hasQualification) {
