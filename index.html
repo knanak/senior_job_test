@@ -898,7 +898,13 @@
         function handleQualification(hasQualification) {
             if (hasQualification) {
                 // 고용24로 이동
-                const excludeKeywords = ['요양', '미화원', '경비', '보안', '운전', '관리소장', '청소원', '시설'];
+                const allExcludeKeywords = ['요양', '미화원', '경비', '보안', '운전', '관리소장', '청소원', '시설'];
+                
+                // 선택한 직업에 포함된 키워드는 제외 목록에서 제거
+                const excludeKeywords = allExcludeKeywords.filter(keyword => {
+                    return !selectedJob.includes(keyword);
+                });
+                
                 const baseUrl = 'https://www.work24.go.kr/wk/a/b/1200/retriveDtlEmpSrchList.do';
                 const params = new URLSearchParams({
                     'srcKeyword': selectedJob,
