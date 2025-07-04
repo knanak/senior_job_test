@@ -914,7 +914,14 @@
                     'searchMode': 'Y',
                     'academicGbnoEdu': 'noEdu',
                     'pageIndex': '1',
-                    'currentPageNo': '1'
+                    'currentPageNo': '1',
+                    'pfMatterPreferential': 'B',  // 중장년 우대 체크
+                    'empTpGbcd': '',  // 정규직 체크 해제
+                    'preferentialGbn': '',
+                    'disableEmpHopeGbn': '',
+                    'academicGbn': '',
+                    'enterPriseGbn': '',
+                    'employGbn': ''
                 });
                 
                 // 새 창에서 고용24 검색 결과 열기
@@ -947,9 +954,19 @@
                 
                 modalContent.innerHTML = `
                     <h2 style="color: #333; margin-bottom: 20px;">${selectedJob} 일자리 찾기</h2>
-                    <p style="color: #666; line-height: 1.8; margin-bottom: 30px;">
+                    <p style="color: #666; line-height: 1.8; margin-bottom: 15px;">
                         고용24(Work24) 사이트에서<br>
-                        <strong style="color: #667eea;">"${selectedJob}"</strong> 관련 일자리를 검색합니다.<br><br>
+                        <strong style="color: #667eea;">"${selectedJob}"</strong> 관련 일자리를 검색합니다.
+                    </p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left;">
+                        <p style="color: #495057; font-size: 0.9em; margin: 0; line-height: 1.6;">
+                            <strong>검색 옵션:</strong><br>
+                            ✓ 중장년 우대 채용공고<br>
+                            ✓ 정규직 외 모든 고용형태 포함<br>
+                            ✓ 서울 지역
+                        </p>
+                    </div>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">
                         새 창에서 검색 결과를 확인하실 수 있습니다.
                     </p>
                     <div style="display: flex; gap: 15px; justify-content: center;">
