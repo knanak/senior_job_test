@@ -107,16 +107,11 @@
 
         .visitor-count {
             color: #764ba2;
-            font-size: 2.5em;
-            font-weight: 700;
+            font-size: 20em;
+            font-weight: 900;
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .visitor-text {
-            color: #666;
-            font-size: 0.85em;
-            margin-top: 5px;
+            line-height: 0.8;
         }
 
         .btn {
@@ -474,7 +469,6 @@
                 <div class="visitor-counter">
                     <h3>오늘의 방문자</h3>
                     <p class="visitor-count" id="visitorCount">0</p>
-                    <p class="visitor-text">명이 방문하셨습니다</p>
                 </div>
                 <p>
                     이 검사는 귀하의 경험, 선호도, 역량을 바탕으로<br>
@@ -505,28 +499,15 @@
     </div>
 
     <script>
+        // Claude.ai 환경에서는 localStorage를 사용할 수 없으므로 세션 변수로 대체
+        let visitorCount = 1;
+        
         // 방문자 카운터 관리
         function initVisitorCounter() {
-            const today = new Date().toDateString();
-            const storageKey = 'seniorJobTestVisitors';
-            let visitorData = JSON.parse(localStorage.getItem(storageKey) || '{}');
-            
-            // 날짜가 바뀌었으면 카운터 리셋
-            if (visitorData.date !== today) {
-                visitorData = {
-                    date: today,
-                    count: 0
-                };
-            }
-            
-            // 방문 카운트 증가 (페이지 로드시마다)
-            visitorData.count++;
-            localStorage.setItem(storageKey, JSON.stringify(visitorData));
-            
             // 카운터 표시 (숫자 애니메이션 효과)
             const countElement = document.getElementById('visitorCount');
             let currentCount = 0;
-            const targetCount = visitorData.count;
+            const targetCount = visitorCount;
             const increment = Math.ceil(targetCount / 20);
             const timer = setInterval(() => {
                 currentCount += increment;
@@ -874,8 +855,11 @@
                     if (answer.morning && jobInfo.category === "위생") scores[job] += 2;
                     if (answer.morning && jobInfo.category === "배달") scores[job] += 2;
                     if (answer.flexible && jobInfo.category === "교육") scores[job] += 2;
-                    if (answer.parttime && job === "교육 종사자") scores[job] += 3;
+                    
+                    // 파트타임 선택 시 교육 종사자(시니어강사)에 매우 높은 가중치
+                    if (answer.parttime && job === "교육 종사자") scores[job] += 50;
                     if (answer.parttime && job === "도보 배달원") scores[job] += 2;
+                    
                     if (answer.regular && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += 2;
                     if (answer.shift && jobInfo.category === "보안") scores[job] += 2;
                     
@@ -946,8 +930,10 @@
             selectedOption = null;
             selectedJob = null;
             
+            // 모든 화면 숨기기
             document.getElementById('resultScreen').style.display = 'none';
-            document.getElementById('qualificationScreen').style.display = 'none';
+            document.getElementById('questionScreen').style.display = 'none';
+            // 시작 화면 표시
             document.getElementById('startScreen').style.display = 'block';
             document.getElementById('progressFill').style.width = '0%';
         }
