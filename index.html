@@ -1165,54 +1165,6 @@
             }
         }
 
-        private fun generateJobQuestion(selectedJob: String, selectedJobDescription: String?): String {
-            return when {
-                selectedJobDescription != null -> {
-                    "$selectedJob 에 대해 자세히 알려주세요. $selectedJobDescription 관련해서 궁금한 점이 있어요."
-                }
-                selectedJob.contains("간병") || selectedJob.contains("요양") -> {
-                    "$selectedJob 일을 하려면 어떤 자격이 필요한가요? 그리고 어디서 구인 정보를 찾을 수 있나요?"
-                }
-                selectedJob.contains("아이돌보미") -> {
-                    "$selectedJob 일을 하려면 어떤 교육이나 자격이 필요한가요? 급여는 어느 정도인가요?"
-                }
-                selectedJob.contains("설비") || selectedJob.contains("시설") -> {
-                    "$selectedJob 일을 하려면 어떤 기술이나 자격증이 필요한가요? 관련 일자리 정보를 알려주세요."
-                }
-                selectedJob.contains("교육") || selectedJob.contains("강사") -> {
-                    "$selectedJob 일을 하려면 어떤 준비가 필요한가요? 시니어도 할 수 있는 교육 관련 일자리가 있나요?"
-                }
-                selectedJob.contains("복지") -> {
-                    "$selectedJob 자격증을 따려면 어떻게 해야 하나요? 관련 교육과 일자리 정보를 알려주세요."
-                }
-                selectedJob.contains("미화") || selectedJob.contains("청소") -> {
-                    "$selectedJob 일을 구하려면 어디에 지원하면 되나요? 근무 조건은 어떤가요?"
-                }
-                selectedJob.contains("경비") -> {
-                    "$selectedJob 일을 하려면 어떤 자격이 필요한가요? 시니어가 할 수 있는 경비 일자리가 있나요?"
-                }
-                selectedJob.contains("운전") -> {
-                    "$selectedJob 일을 하려면 어떤 면허나 자격이 필요한가요? 시니어 운전자 채용 정보를 알려주세요."
-                }
-                selectedJob.contains("서비스") -> {
-                    "$selectedJob 분야에서 시니어가 할 수 있는 일은 무엇이 있나요? 관련 일자리 정보를 알려주세요."
-                }
-                selectedJob.contains("사무") -> {
-                    "$selectedJob 일을 구하려면 어떤 준비가 필요한가요? 시니어 친화적인 사무직 일자리가 있나요?"
-                }
-                selectedJob.contains("약국") -> {
-                    "$selectedJob 일을 하려면 어떤 자격이나 교육이 필요한가요? 관련 구인 정보를 알려주세요."
-                }
-                selectedJob.contains("배달") -> {
-                    "$selectedJob 일을 하려면 어떤 준비가 필요한가요? 시니어도 할 수 있는 배달 일자리 정보를 알려주세요."
-                }
-                else -> {
-                    "$selectedJob 일에 대해 자세히 알려주세요. 어떤 준비가 필요하고, 어디서 관련 일자리를 찾을 수 있나요?"
-                }
-            }
-        }
-
-
         function restartTest() {
 
             userLocationInput = '';
@@ -1480,22 +1432,9 @@
                     시니어 맞춤형 취업 정보와<br>
                     다양한 일자리 정보를 확인하실 수 있습니다.
                 </p>
-                <div style="display: flex; gap: 15px; justify-content: center; flex-direction: column;">
+                <div style="display: flex; gap: 15px; justify-content: center;">
                     <button onclick="
-                        // 앱이 설치되어 있는 경우 앱으로 이동 (선택된 직업 정보와 함께)
-                        const appUrl = 'obiserver://job?name=' + encodeURIComponent('${selectedJob}') + '&description=' + encodeURIComponent('${jobCategories[selectedJob]?.description || ''}');
-                        const playStoreUrl = 'https://play.google.com/store/apps/details?id=chatGPT_for_senior.myapplication&hl=ko';
-                        
-                        // 앱으로 이동 시도
-                        window.location.href = appUrl;
-                        
-                        // 2초 후에도 페이지가 그대로 있으면 Play Store로 이동
-                        setTimeout(() => {
-                            if (!document.hidden) {
-                                window.open(playStoreUrl, '_blank');
-                            }
-                        }, 2000);
-                        
+                        window.open('https://play.google.com/store/apps/details?id=chatGPT_for_senior.myapplication&hl=ko', '_blank');
                         document.body.removeChild(this.parentElement.parentElement.parentElement);
                     " 
                             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
@@ -1507,26 +1446,14 @@
                                    font-size: 1.1em;">
                         오비서 앱에서 자세히 알아보기
                     </button>
-                    <button onclick="
-                        window.open('https://play.google.com/store/apps/details?id=chatGPT_for_senior.myapplication&hl=ko', '_blank');
-                        document.body.removeChild(this.parentElement.parentElement.parentElement);
-                    " 
+                    <button onclick="document.body.removeChild(this.parentElement.parentElement.parentElement);" 
                             style="background: #e9ecef; 
                                    color: #495057; 
                                    border: none; 
-                                   padding: 12px 30px; 
+                                   padding: 15px 30px; 
                                    border-radius: 50px; 
                                    cursor: pointer;
-                                   font-size: 1em;">
-                        Play Store에서 앱 다운로드
-                    </button>
-                    <button onclick="document.body.removeChild(this.parentElement.parentElement.parentElement);" 
-                            style="background: transparent; 
-                                   color: #495057; 
-                                   border: none; 
-                                   padding: 8px 20px; 
-                                   cursor: pointer;
-                                   font-size: 0.9em;">
+                                   font-size: 1.1em;">
                         닫기
                     </button>
                 </div>
