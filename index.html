@@ -135,6 +135,100 @@
             box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
         }
 
+        /* 지역구 입력 화면 스타일 */
+        .location-screen {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .location-screen h2 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .location-screen p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .location-input-container {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .location-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.2em;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .location-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .location-input::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .location-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            margin-top: 20px;
+        }
+
+        .location-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .location-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .back-btn {
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .back-btn:hover {
+            background: #dee2e6;
+        }
+
         .question-screen {
             display: none;
             animation: slideIn 0.5s ease;
@@ -480,7 +574,33 @@
                     총 10개의 질문에 답해주시면,<br>
                     가장 적합한 직업 3가지를 추천해드립니다.
                 </p>
-                <button class="btn" onclick="startTest()">검사 시작하기</button>
+                <button class="btn" onclick="showLocationScreen()">검사 시작하기</button>
+            </div>
+
+            <!-- 지역구 입력 화면 -->
+            <div class="location-screen" id="locationScreen">
+                <h2>거주 지역을 입력해 주세요</h2>
+                <p>
+                    더 정확한 취업 정보 제공을 위해<br>
+                    현재 거주하고 계신 지역구를 입력해 주세요.
+                </p>
+                <div class="location-input-container">
+                    <input 
+                        type="text" 
+                        id="locationInput" 
+                        class="location-input" 
+                        placeholder="예 : 성동구"
+                        maxlength="20"
+                        onkeypress="handleLocationKeypress(event)"
+                        oninput="checkLocationInput()"
+                    >
+                    <div style="margin-top: 15px;">
+                        <button class="back-btn" onclick="backToStart()">이전</button>
+                        <button class="location-btn" id="locationBtn" onclick="submitLocation()" disabled>
+                            검사 시작하기
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <!-- 질문 화면 -->
@@ -512,6 +632,11 @@
         if (SUPABASE_URL.includes('supabase.co') && SUPABASE_ANON_KEY.length > 50) {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
+        
+        // 전역 변수
+        let visitorCount = 1;
+        let selectedAnswers = [];
+        let userLocation = '';
         
         // 세션 ID 생성 또는 가져오기
         function getOrCreateSessionId() {
@@ -563,13 +688,8 @@
             return sessionId;
         }
         
-        // Claude.ai 환경에서는 localStorage를 사용할 수 없으므로 세션 변수로 대체
-        let visitorCount = 1;
-        let selectedAnswers = []; // 선택한 답변 번호들을 저장
-        
         // 방문자 카운터 관리
         function initVisitorCounter() {
-            // 카운터 표시 (숫자 애니메이션 효과)
             const countElement = document.getElementById('visitorCount');
             let currentCount = 0;
             const targetCount = visitorCount;
@@ -586,6 +706,63 @@
 
         // 페이지 로드시 방문자 카운터 초기화
         window.addEventListener('DOMContentLoaded', initVisitorCounter);
+
+        // 지역구 입력 화면 표시
+        function showLocationScreen() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('locationScreen').style.display = 'block';
+            document.getElementById('locationInput').focus();
+        }
+
+        // 시작 화면으로 돌아가기
+        function backToStart() {
+            document.getElementById('locationScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+            // 입력값 초기화
+            document.getElementById('locationInput').value = '';
+            checkLocationInput();
+        }
+
+        // 지역구 입력 확인
+        function checkLocationInput() {
+            const input = document.getElementById('locationInput');
+            const btn = document.getElementById('locationBtn');
+            const value = input.value.trim();
+            
+            if (value.length > 0) {
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        }
+
+        // 엔터키 처리
+        function handleLocationKeypress(event) {
+            if (event.key === 'Enter') {
+                const btn = document.getElementById('locationBtn');
+                if (!btn.disabled) {
+                    submitLocation();
+                }
+            }
+        }
+
+        // 지역구 제출
+        function submitLocation() {
+            const input = document.getElementById('locationInput');
+            const location = input.value.trim();
+            
+            if (location.length === 0) {
+                alert('지역구를 입력해 주세요.');
+                input.focus();
+                return;
+            }
+            
+            userLocation = location;
+            console.log('사용자 지역:', userLocation);
+            
+            // 지역구 입력 완료 후 테스트 시작
+            startTest();
+        }
 
         // 단순화된 직업 카테고리
         const jobCategories = {
@@ -799,7 +976,7 @@
         let selectedJob = null;
 
         function startTest() {
-            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('locationScreen').style.display = 'none';
             document.getElementById('questionScreen').style.display = 'block';
             showQuestion();
         }
@@ -1015,7 +1192,7 @@
                 // 세션 ID 가져오기
                 const sessionId = getOrCreateSessionId();
                 
-                // Claude.ai 환경 체크 (saveResultsToSupabase 함수 내에서 사용)
+                // Claude.ai 환경 체크
                 const isClaudeEnvironment = typeof window !== 'undefined' && 
                                            window.location && 
                                            window.location.hostname.includes('claude.ai');
@@ -1039,6 +1216,7 @@
                             job_3: recommendedJobs[2].job,
                             job_3_match_rate: recommendedJobs[2].matchRate,
                             answers: answersString,
+                            location_city: userLocation,  // 지역구 정보 추가
                             user_agent: navigator.userAgent,
                             ip_address: ipAddress
                         }
@@ -1049,6 +1227,7 @@
                 } else {
                     console.log('결과가 성공적으로 저장되었습니다.');
                     console.log('사용자 ID:', sessionId);
+                    console.log('사용자 지역:', userLocation);
                     console.log('재방문 사용자:', isReturningUser);
                     console.log('총 방문 횟수:', visitCount);
                     console.log('선택한 답변:', answersString);
@@ -1064,13 +1243,19 @@
             selectedAnswers = [];
             selectedOption = null;
             selectedJob = null;
+            userLocation = '';
             
             // 모든 화면 숨기기
             document.getElementById('resultScreen').style.display = 'none';
             document.getElementById('questionScreen').style.display = 'none';
+            document.getElementById('locationScreen').style.display = 'none';
             // 시작 화면 표시
             document.getElementById('startScreen').style.display = 'block';
             document.getElementById('progressFill').style.width = '0%';
+            
+            // 입력 필드 초기화
+            document.getElementById('locationInput').value = '';
+            checkLocationInput();
         }
         
         function selectJob(job) {
