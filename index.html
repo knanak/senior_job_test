@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>시니어 재취업 적성 검사 - 나에게 맞는 직업 찾기</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👔</text></svg>">
+    
+    <!-- Supabase 클라이언트 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         * {
             margin: 0;
@@ -499,8 +503,69 @@
     </div>
 
     <script>
+        // Supabase 초기화 - 실제 프로젝트 URL과 ANON KEY로 교체하세요
+        const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        // Supabase 클라이언트 생성 (URL과 KEY가 설정된 경우에만)
+        let supabase = null;
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        
+        // 세션 ID 생성 또는 가져오기
+        function getOrCreateSessionId() {
+            // Claude.ai 환경 체크
+            const isClaudeEnvironment = typeof window !== 'undefined' && 
+                                       window.location && 
+                                       window.location.hostname.includes('claude.ai');
+            
+            let sessionId;
+            
+            if (isClaudeEnvironment) {
+                // Claude.ai 환경에서는 sessionStorage 사용 (localStorage 미지원)
+                sessionId = sessionStorage.getItem('seniorJobTestSessionId');
+                if (!sessionId) {
+                    sessionId = Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+                    sessionStorage.setItem('seniorJobTestSessionId', sessionId);
+                }
+            } else {
+                // 실제 운영 환경에서는 localStorage 사용 (영구 저장)
+                try {
+                    sessionId = localStorage.getItem('seniorJobTestUserId');
+                    if (!sessionId) {
+                        // 새 사용자 ID 생성 (타임스탬프 + 랜덤 문자열)
+                        sessionId = 'user-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+                        localStorage.setItem('seniorJobTestUserId', sessionId);
+                        
+                        // 처음 방문 시간도 저장
+                        localStorage.setItem('seniorJobTestFirstVisit', new Date().toISOString());
+                    }
+                    
+                    // 마지막 방문 시간 업데이트
+                    localStorage.setItem('seniorJobTestLastVisit', new Date().toISOString());
+                    
+                    // 총 방문 횟수 증가
+                    const visitCount = parseInt(localStorage.getItem('seniorJobTestVisitCount') || '0') + 1;
+                    localStorage.setItem('seniorJobTestVisitCount', visitCount.toString());
+                    
+                } catch (e) {
+                    // localStorage 접근 실패 시 (예: 시크릿 모드) sessionStorage 사용
+                    console.log('localStorage를 사용할 수 없습니다. sessionStorage로 대체합니다.');
+                    sessionId = sessionStorage.getItem('seniorJobTestSessionId');
+                    if (!sessionId) {
+                        sessionId = 'temp-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+                        sessionStorage.setItem('seniorJobTestSessionId', sessionId);
+                    }
+                }
+            }
+            
+            return sessionId;
+        }
+        
         // Claude.ai 환경에서는 localStorage를 사용할 수 없으므로 세션 변수로 대체
         let visitorCount = 1;
+        let selectedAnswers = []; // 선택한 답변 번호들을 저장
         
         // 방문자 카운터 관리
         function initVisitorCounter() {
@@ -780,6 +845,7 @@
             if (selectedOption === null) return;
             
             answers[currentQuestion] = questions[currentQuestion].options[selectedOption].value;
+            selectedAnswers[currentQuestion] = selectedOption + 1; // 1부터 시작하는 번호로 저장
             
             if (currentQuestion < questions.length - 1) {
                 currentQuestion++;
@@ -922,11 +988,80 @@
                 `;
                 jobsContainer.appendChild(jobDiv);
             });
+            
+            // Supabase에 결과 저장
+            saveResultsToSupabase(recommendedJobs);
+        }
+        
+        // Supabase에 결과 저장하는 함수
+        async function saveResultsToSupabase(recommendedJobs) {
+            // Supabase가 초기화되지 않았으면 저장하지 않음
+            if (!supabase) {
+                console.log('Supabase가 설정되지 않아 결과를 저장하지 않습니다.');
+                return;
+            }
+            
+            try {
+                // IP 주소 가져오기 (선택사항)
+                let ipAddress = null;
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    ipAddress = ipData.ip;
+                } catch (ipError) {
+                    console.log('IP 주소를 가져올 수 없습니다:', ipError);
+                }
+                
+                // 세션 ID 가져오기
+                const sessionId = getOrCreateSessionId();
+                
+                // Claude.ai 환경 체크 (saveResultsToSupabase 함수 내에서 사용)
+                const isClaudeEnvironment = typeof window !== 'undefined' && 
+                                           window.location && 
+                                           window.location.hostname.includes('claude.ai');
+                
+                // 선택한 답변들을 문자열로 변환 (예: "1,2,4,2,1,2,3,4,1,1")
+                const answersString = selectedAnswers.join(',');
+                
+                // 추가 사용자 정보 수집
+                const isReturningUser = !isClaudeEnvironment && localStorage.getItem('seniorJobTestUserId') ? true : false;
+                const visitCount = !isClaudeEnvironment ? (parseInt(localStorage.getItem('seniorJobTestVisitCount') || '1')) : 1;
+                
+                const { data, error } = await supabase
+                    .from('senior_job_test_results')
+                    .insert([
+                        {
+                            session_id: sessionId,
+                            job_1: recommendedJobs[0].job,
+                            job_1_match_rate: recommendedJobs[0].matchRate,
+                            job_2: recommendedJobs[1].job,
+                            job_2_match_rate: recommendedJobs[1].matchRate,
+                            job_3: recommendedJobs[2].job,
+                            job_3_match_rate: recommendedJobs[2].matchRate,
+                            answers: answersString,
+                            user_agent: navigator.userAgent,
+                            ip_address: ipAddress
+                        }
+                    ]);
+                
+                if (error) {
+                    console.error('결과 저장 중 오류:', error);
+                } else {
+                    console.log('결과가 성공적으로 저장되었습니다.');
+                    console.log('사용자 ID:', sessionId);
+                    console.log('재방문 사용자:', isReturningUser);
+                    console.log('총 방문 횟수:', visitCount);
+                    console.log('선택한 답변:', answersString);
+                }
+            } catch (err) {
+                console.error('Supabase 연결 오류:', err);
+            }
         }
 
         function restartTest() {
             currentQuestion = 0;
             answers = [];
+            selectedAnswers = [];
             selectedOption = null;
             selectedJob = null;
             
@@ -1199,7 +1334,7 @@
                                    font-size: 1.1em;">
                         오비서 앱에서 자세히 알아보기
                     </button>
-                    <button onclick="document.body.removeChild(this.parentElement.parentElement);" 
+                    <button onclick="document.body.removeChild(this.parentElement.parentElement.parentElement);" 
                             style="background: #e9ecef; 
                                    color: #495057; 
                                    border: none; 
