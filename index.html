@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>시니어 재취업 적성 검사 - 나에게 맞는 직업 찾기</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👔</text></svg>">
-    
     <style>
         * {
             margin: 0;
@@ -109,7 +107,7 @@
 
         .visitor-count {
             color: #764ba2;
-            font-size: 2em;
+            font-size: 20em;
             font-weight: 900;
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
@@ -131,45 +129,6 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
-        }
-
-        .location-screen {
-            display: none;
-            text-align: center;
-            animation: fadeIn 0.8s ease;
-        }
-        
-        .location-screen h2 {
-            color: #333;
-            font-size: 1.8em;
-            margin-bottom: 20px;
-        }
-        
-        .location-screen p {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 30px;
-        }
-        
-        .location-input-wrapper {
-            margin: 30px auto;
-            max-width: 400px;
-        }
-        
-        .location-input {
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 1.1em;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        .location-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .question-screen {
@@ -358,6 +317,83 @@
             transition: all 0.3s ease;
         }
 
+        .qualification-screen {
+            display: none;
+            animation: fadeIn 0.8s ease;
+            text-align: center;
+        }
+
+        .qualification-screen h2 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .selected-job {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .selected-job-name {
+            color: #667eea;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .qualification-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .qual-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .qual-option:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .qual-option h3 {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .qual-option p {
+            color: #666;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .back-to-results {
+            margin-top: 30px;
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-results:hover {
+            background: #dee2e6;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -440,26 +476,7 @@
                     총 10개의 질문에 답해주시면,<br>
                     가장 적합한 직업 3가지를 추천해드립니다.
                 </p>
-                <button class="btn" onclick="startLocationScreen()">검사 시작하기</button>
-            </div>
-
-            <!-- 지역 입력 화면 -->
-            <div class="location-screen" id="locationScreen">
-                <h2>거주 지역 정보</h2>
-                <p>
-                    더 정확한 취업 정보 제공을 위해<br>
-                    거주하시는 지역구를 입력해 주세요.
-                </p>
-                <div class="location-input-wrapper">
-                    <input 
-                        type="text" 
-                        id="userLocation" 
-                        class="location-input" 
-                        placeholder="예: 성북구"
-                        onkeypress="if(event.keyCode==13){startTestWithLocation();}"
-                    >
-                </div>
-                <button class="btn" onclick="startTestWithLocation()">검사 시작</button>
+                <button class="btn" onclick="startTest()">검사 시작하기</button>
             </div>
             
             <!-- 질문 화면 -->
@@ -482,14 +499,28 @@
     </div>
 
     <script>
-        // 전역 변수들
-        let visitorCount = Math.floor(Math.random() * 1000) + 500;
-        let selectedAnswers = [];
-        let userLocationInput = '';
-        let currentQuestion = 0;
-        let answers = [];
-        let selectedOption = null;
-        let selectedJob = null;
+        // Claude.ai 환경에서는 localStorage를 사용할 수 없으므로 세션 변수로 대체
+        let visitorCount = 1;
+        
+        // 방문자 카운터 관리
+        function initVisitorCounter() {
+            // 카운터 표시 (숫자 애니메이션 효과)
+            const countElement = document.getElementById('visitorCount');
+            let currentCount = 0;
+            const targetCount = visitorCount;
+            const increment = Math.ceil(targetCount / 20);
+            const timer = setInterval(() => {
+                currentCount += increment;
+                if (currentCount >= targetCount) {
+                    currentCount = targetCount;
+                    clearInterval(timer);
+                }
+                countElement.textContent = currentCount.toLocaleString();
+            }, 50);
+        }
+
+        // 페이지 로드시 방문자 카운터 초기화
+        window.addEventListener('DOMContentLoaded', initVisitorCounter);
 
         // 단순화된 직업 카테고리
         const jobCategories = {
@@ -697,31 +728,13 @@
             }
         ];
 
-        // 기본 함수들
-        function startLocationScreen() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('locationScreen').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('userLocation').focus();
-            }, 100);
-        }
-        
-        function startTestWithLocation() {
-            const locationInput = document.getElementById('userLocation').value.trim();
-            
-            if (!locationInput) {
-                alert('거주하시는 지역구를 입력해 주세요.');
-                document.getElementById('userLocation').focus();
-                return;
-            }
-            
-            userLocationInput = locationInput;
-            startTest();
-        }
+        let currentQuestion = 0;
+        let answers = [];
+        let selectedOption = null;
+        let selectedJob = null;
 
         function startTest() {
             document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('locationScreen').style.display = 'none';
             document.getElementById('questionScreen').style.display = 'block';
             showQuestion();
         }
@@ -757,6 +770,7 @@
                 option.classList.toggle('selected', i === index);
             });
             
+            // 선택 후 자동으로 다음 질문으로 이동
             setTimeout(() => {
                 nextQuestion();
             }, 300);
@@ -766,7 +780,6 @@
             if (selectedOption === null) return;
             
             answers[currentQuestion] = questions[currentQuestion].options[selectedOption].value;
-            selectedAnswers[currentQuestion] = selectedOption + 1;
             
             if (currentQuestion < questions.length - 1) {
                 currentQuestion++;
@@ -795,60 +808,72 @@
         function calculateScores() {
             const scores = {};
             
+            // 각 직업별 점수 계산
             Object.keys(jobCategories).forEach(job => {
                 scores[job] = 0;
                 const jobInfo = jobCategories[job];
                 
+                // 답변과 직업 특성 매칭
                 answers.forEach(answer => {
+                    // 신체 활동 선호도 매칭
                     if (answer.physical !== undefined) {
                         if (jobInfo.physical === "high" && answer.physical >= 2) scores[job] += 3;
                         else if (jobInfo.physical === "medium" && answer.physical >= 1 && answer.physical <= 2) scores[job] += 3;
                         else if (jobInfo.physical === "low" && answer.physical <= 1) scores[job] += 3;
                     }
                     
+                    // 사회적 상호작용 선호도 매칭
                     if (answer.social !== undefined) {
                         if (jobInfo.social === "high" && answer.social >= 2) scores[job] += 3;
                         else if (jobInfo.social === "medium" && answer.social >= 1 && answer.social <= 2) scores[job] += 3;
                         else if (jobInfo.social === "low" && answer.social <= 1) scores[job] += 3;
                     }
                     
+                    // 스트레스 내성과 책임감 매칭
                     if (answer.responsibility !== undefined) {
                         if (jobInfo.stress === "high" && answer.responsibility >= 2) scores[job] += 2;
                         else if (jobInfo.stress === "medium" && answer.responsibility >= 1 && answer.responsibility <= 2) scores[job] += 2;
                         else if (jobInfo.stress === "low" && answer.responsibility <= 1) scores[job] += 2;
                     }
                     
+                    // 기술 숙련도와 학습 의향 매칭
                     if (answer.learning !== undefined) {
                         if (jobInfo.skill === "high" && answer.learning >= 2) scores[job] += 2;
                         else if (jobInfo.skill === "medium" && answer.learning >= 1 && answer.learning <= 2) scores[job] += 2;
                         else if (jobInfo.skill === "low" && answer.learning <= 1) scores[job] += 2;
                     }
                     
+                    // 카테고리별 추가 점수
                     if (answer.care && jobInfo.category === "돌봄") scores[job] += answer.care * 2;
                     if (answer.education && jobInfo.category === "교육") scores[job] += answer.education * 2;
                     if (answer.technical && jobInfo.category === "기술") scores[job] += answer.technical * 2;
                     if (answer.service && (jobInfo.category === "서비스" || jobInfo.category === "돌봄")) scores[job] += answer.service;
                     if (answer.office && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += answer.office * 2;
                     
+                    // 특별 보너스
                     if (answer.morning && jobInfo.category === "운송") scores[job] += 2;
                     if (answer.morning && jobInfo.category === "위생") scores[job] += 2;
                     if (answer.morning && jobInfo.category === "배달") scores[job] += 2;
                     if (answer.flexible && jobInfo.category === "교육") scores[job] += 2;
                     
+                    // 파트타임 선택 시 교육 종사자(시니어강사)에 매우 높은 가중치
                     if (answer.parttime && job === "교육 종사자") scores[job] += 50;
                     if (answer.parttime && job === "도보 배달원") scores[job] += 2;
                     
                     if (answer.regular && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += 2;
                     if (answer.shift && jobInfo.category === "보안") scores[job] += 2;
                     
+                    // 근무 환경 매칭
                     if (answer.indoor && (jobInfo.category === "사무" || jobInfo.category === "교육" || jobInfo.category === "의료사무")) scores[job] += 2;
                     if (answer.outdoor && (jobInfo.category === "위생" || jobInfo.category === "배달")) scores[job] += 2;
                     if (answer.mobile && (jobInfo.category === "운송" || jobInfo.category === "배달")) scores[job] += 3;
                     
+                    // 소득과 만족도 매칭
                     if (answer.income >= 2 && (jobInfo.category === "기술" || jobInfo.category === "운송")) scores[job] += 1;
                     if (answer.satisfaction >= 2 && (jobInfo.category === "교육" || jobInfo.category === "복지" || jobInfo.category === "돌봄")) scores[job] += 1;
                     if (answer.balance >= 2 && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += 1;
                     
+                    // 경력 매칭
                     if (answer.office && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += 3;
                     if (answer.technical && jobInfo.category === "기술") scores[job] += 3;
                     if (answer.service && jobInfo.category === "서비스") scores[job] += 3;
@@ -856,10 +881,12 @@
                 });
             });
             
+            // 상위 3개 직업 선택
             const sortedJobs = Object.entries(scores)
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 3)
                 .map(([job, score], index) => {
+                    // 1위는 85-95%, 2위는 75-85%, 3위는 65-75%
                     const baseRate = index === 0 ? 85 : index === 1 ? 75 : 65;
                     const bonus = Math.min(10, Math.floor(score / 5));
                     return { 
@@ -897,9 +924,25 @@
             });
         }
 
+        function restartTest() {
+            currentQuestion = 0;
+            answers = [];
+            selectedOption = null;
+            selectedJob = null;
+            
+            // 모든 화면 숨기기
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('questionScreen').style.display = 'none';
+            // 시작 화면 표시
+            document.getElementById('startScreen').style.display = 'block';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+        
         function selectJob(job) {
             selectedJob = job;
+            const jobInfo = jobCategories[job];
             
+            // 선택 모달 생성
             const modal = document.createElement('div');
             modal.style.cssText = `
                 position: fixed;
@@ -933,26 +976,36 @@
                             margin-bottom: 30px;">
                     <div style="color: #667eea; font-size: 1.4em; font-weight: 600;">${job}</div>
                 </div>
-                <h3 style="color: #333; margin-bottom: 20px;">관련 정보를 더 자세히 확인하세요!</h3>
-                <p style="color: #666; margin-bottom: 30px; line-height: 1.6;">
-                    선택하신 직업에 대한 상세 정보, 관련 일자리, 교육 과정 등을<br>
-                    워크넷이나 일자리 포털에서 확인하실 수 있습니다.
-                </p>
+                <h3 style="color: #333; margin-bottom: 20px;">관련 경력이나 자격증이 있으신가요?</h3>
                 <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <div onclick="window.open('https://www.work.go.kr', '_blank'); document.body.removeChild(this.parentElement.parentElement.parentElement);"
-                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                color: white;
-                                border: none;
+                    <div onclick="handleQualification(true); document.body.removeChild(this.parentElement.parentElement.parentElement);"
+                         style="background: white;
+                                border: 2px solid #e9ecef;
                                 border-radius: 15px;
                                 padding: 20px;
                                 cursor: pointer;
                                 transition: all 0.3s ease;
-                                box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);"
-                         onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 30px rgba(102, 126, 234, 0.6)';"
-                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 20px rgba(102, 126, 234, 0.4)';">
-                        <h4 style="font-size: 1.2em; margin-bottom: 10px;">🔍 워크넷에서 자세히 알아보기</h4>
-                        <p style="font-size: 0.95em; line-height: 1.5; margin: 0; opacity: 0.9;">
-                            ${job}에 대한 상세 정보와 관련 일자리를 확인하세요.
+                                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);"
+                         onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 5px 20px rgba(102, 126, 234, 0.2)';"
+                         onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0, 0, 0, 0.05)';">
+                        <h4 style="color: #333; font-size: 1.2em; margin-bottom: 10px;">📋 경력이나 자격증이 있음</h4>
+                        <p style="color: #666; font-size: 0.95em; line-height: 1.5; margin: 0;">
+                            관련 분야의 경력이나 자격증을 보유하고 있어 바로 지원 가능합니다.
+                        </p>
+                    </div>
+                    <div onclick="handleQualification(false); document.body.removeChild(this.parentElement.parentElement.parentElement);"
+                         style="background: white;
+                                border: 2px solid #e9ecef;
+                                border-radius: 15px;
+                                padding: 20px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);"
+                         onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 5px 20px rgba(102, 126, 234, 0.2)';"
+                         onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0, 0, 0, 0.05)';">
+                        <h4 style="color: #333; font-size: 1.2em; margin-bottom: 10px;">📚 경력이나 자격증이 없음</h4>
+                        <p style="color: #666; font-size: 0.95em; line-height: 1.5; margin: 0;">
+                            새롭게 도전하고자 하며, 필요시 교육이나 자격증 취득을 고려하고 있습니다.
                         </p>
                     </div>
                 </div>
@@ -975,41 +1028,193 @@
             modal.appendChild(modalContent);
             document.body.appendChild(modal);
         }
-
-        function restartTest() {
-            userLocationInput = '';
-            document.getElementById('locationScreen').style.display = 'none';
-            document.getElementById('userLocation').value = '';
+        
+        function handleQualification(hasQualification) {
+            const jobInfo = jobCategories[selectedJob];
             
-            currentQuestion = 0;
-            answers = [];
-            selectedAnswers = [];
-            selectedOption = null;
-            selectedJob = null;
+            // 약국 사무원과 도보 배달원은 자격증 유무와 관계없이 오비서 앱으로 연결
+            if (selectedJob === "약국 사무원" || selectedJob === "도보 배달원") {
+                showObiseoModal();
+                return;
+            }
             
-            document.getElementById('resultScreen').style.display = 'none';
-            document.getElementById('questionScreen').style.display = 'none';
-            document.getElementById('startScreen').style.display = 'block';
-            document.getElementById('progressFill').style.width = '0%';
+            if (hasQualification) {
+                // 고용24로 이동 - 첫 번째 키워드만 사용
+                const searchKeyword = jobInfo.keywords[0];
+                
+                // 제외 검색어 설정
+                const allExcludeKeywords = ['요양', '미화원', '경비', '보안', '운전', '관리소장', '청소원', '시설'];
+                
+                // 검색 키워드에 포함된 단어들을 제외 검색어에서 제거
+                const excludeKeywords = allExcludeKeywords.filter(excludeWord => {
+                    // 현재 직업의 모든 키워드를 확인
+                    return !jobInfo.keywords.some(keyword => 
+                        keyword.includes(excludeWord) || excludeWord.includes(keyword)
+                    );
+                });
+                
+                const baseUrl = 'https://www.work24.go.kr/wk/a/b/1200/retriveDtlEmpSrchList.do';
+                const params = new URLSearchParams({
+                    'srcKeyword': searchKeyword,
+                    'notSrcKeyword': excludeKeywords.join(','),
+                    'region': '11000',
+                    'regionParam': '11000',
+                    'codeDepth1Info': '11000',
+                    'codeDepth2Info': '11000',
+                    'resultCnt': '10',
+                    'sortField': 'DATE',
+                    'sortOrderBy': 'DESC',
+                    'siteClcd': 'all',
+                    'searchMode': 'Y',
+                    'academicGbnoEdu': 'noEdu',
+                    'pageIndex': '1',
+                    'currentPageNo': '1',
+                    'pfMatterPreferential': 'B',  // 중장년 우대 설정
+                    'moreButtonYn': 'Y'
+                });
+                
+                // 새 창에서 고용24 검색 결과 열기
+                const searchUrl = `${baseUrl}?${params.toString()}#scrollLoc`;
+                
+                // 안내 모달 표시
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.7);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    max-width: 500px;
+                    text-align: center;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                `;
+                
+                modalContent.innerHTML = `
+                    <h2 style="color: #333; margin-bottom: 20px;">${selectedJob} 일자리 찾기</h2>
+                    <p style="color: #666; line-height: 1.8; margin-bottom: 30px;">
+                        고용24(Work24) 사이트에서<br>
+                        <strong style="color: #667eea;">"${selectedJob}"</strong> 관련 일자리를 검색합니다.<br><br>
+                        <span style="color: #667eea; font-weight: 600;">중장년 우대</span> 조건으로 검색됩니다.<br>
+                        새 창에서 검색 결과를 확인하실 수 있습니다.
+                    </p>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button onclick="
+                            window.open('${searchUrl}', '_blank');
+                            document.body.removeChild(this.parentElement.parentElement.parentElement);
+                        " 
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                       color: white; 
+                                       border: none; 
+                                       padding: 15px 30px; 
+                                       border-radius: 50px; 
+                                       cursor: pointer;
+                                       font-size: 1.1em;">
+                            고용24에서 검색하기
+                        </button>
+                        <button onclick="document.body.removeChild(this.parentElement.parentElement.parentElement);" 
+                                style="background: #e9ecef; 
+                                       color: #495057; 
+                                       border: none; 
+                                       padding: 15px 30px; 
+                                       border-radius: 50px; 
+                                       cursor: pointer;
+                                       font-size: 1.1em;">
+                            취소
+                        </button>
+                    </div>
+                `;
+                
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+                
+            } else {
+                showObiseoModal();
+            }
         }
-
-        function initVisitorCounter() {
-            const countElement = document.getElementById('visitorCount');
-            let currentCount = 0;
-            const targetCount = visitorCount;
-            const increment = Math.ceil(targetCount / 20);
-            const timer = setInterval(() => {
-                currentCount += increment;
-                if (currentCount >= targetCount) {
-                    currentCount = targetCount;
-                    clearInterval(timer);
-                }
-                countElement.textContent = currentCount.toLocaleString();
-            }, 50);
+        
+        function showObiseoModal() {
+            // 오비서 앱 안내 모달
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                max-width: 500px;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            `;
+            
+            modalContent.innerHTML = `
+                <h2 style="color: #333; margin-bottom: 20px;">${selectedJob} 취업 정보</h2>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 20px;">
+                    <strong style="color: #667eea;">${selectedJob}</strong> 관련 정보를 찾고 계시는군요!
+                </p>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <p style="color: #495057; line-height: 1.6; margin: 0;">
+                        채용 정보와 자격 요건을<br>
+                        <strong style="color: #667eea;">오비서 앱</strong>에서 자세히 알아보세요!
+                    </p>
+                </div>
+                <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">
+                    시니어 맞춤형 취업 정보와<br>
+                    다양한 일자리 정보를 확인하실 수 있습니다.
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="
+                        window.open('https://play.google.com/store/apps/details?id=chatGPT_for_senior.myapplication&hl=ko', '_blank');
+                        document.body.removeChild(this.parentElement.parentElement.parentElement);
+                    " 
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                   color: white; 
+                                   border: none; 
+                                   padding: 15px 30px; 
+                                   border-radius: 50px; 
+                                   cursor: pointer;
+                                   font-size: 1.1em;">
+                        오비서 앱에서 자세히 알아보기
+                    </button>
+                    <button onclick="document.body.removeChild(this.parentElement.parentElement);" 
+                            style="background: #e9ecef; 
+                                   color: #495057; 
+                                   border: none; 
+                                   padding: 15px 30px; 
+                                   border-radius: 50px; 
+                                   cursor: pointer;
+                                   font-size: 1.1em;">
+                        닫기
+                    </button>
+                </div>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
         }
-
-        // 페이지 로드시 방문자 카운터 초기화
-        window.addEventListener('DOMContentLoaded', initVisitorCounter);
     </script>
 </body>
 </html>
