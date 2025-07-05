@@ -1297,7 +1297,7 @@
                     
                     if (answer.care && jobInfo.category === "돌봄") scores[job] += answer.care * 2;
                     if (answer.education && jobInfo.category === "교육") scores[job] += answer.education * 2;
-                    if (answer.technical && jobInfo.category === "기술") scores[job] += answer.technical * 3; // 시설·설비 관리원 가중치 증가
+                    if (answer.technical && jobInfo.category === "기술") scores[job] += answer.technical * 5; // 시설·설비 관리원 가중치 증가
                     if (answer.service && jobInfo.category === "돌봄") scores[job] += answer.service; // 서비스 가중치를 돌봄 분야에만 적용
                     if (answer.service && jobInfo.category === "서비스") scores[job] += Math.floor(answer.service * 0.8); // 서비스직 가중치 대폭 감소
                     if (answer.office && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += answer.office * 2;
