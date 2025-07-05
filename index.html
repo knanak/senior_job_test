@@ -587,34 +587,6 @@
         // 페이지 로드시 방문자 카운터 초기화
         window.addEventListener('DOMContentLoaded', initVisitorCounter);
 
-
-        // 다른 함수들과 함께 추가 (예: initVisitorCounter 함수 아래)
-    async function getLocationFromIP() {
-        try {
-            // IP 주소 가져오기
-            const ipResponse = await fetch('https://api.ipify.org?format=json');
-            const ipData = await ipResponse.json();
-            const ip = ipData.ip;
-            
-            // 위치 정보 가져오기
-            const geoResponse = await fetch(`https://ipapi.co/${ip}/json/`);
-            const geoData = await geoResponse.json();
-            
-            return {
-                ip: ip,
-                country: geoData.country_name,
-                region: geoData.region,
-                city: geoData.city,
-                latitude: geoData.latitude,
-                longitude: geoData.longitude,
-                isp: geoData.org
-            };
-        } catch (error) {
-            console.error('위치 정보 가져오기 실패:', error);
-            return null;
-        }
-    }
-
         // 단순화된 직업 카테고리
         const jobCategories = {
             "돌봄·간병 종사자": { 
@@ -1030,7 +1002,15 @@
             }
             
             try {
-                const locationData = await getLocationFromIP();
+                // IP 주소 가져오기 (선택사항)
+                let ipAddress = null;
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    ipAddress = ipData.ip;
+                } catch (ipError) {
+                    console.log('IP 주소를 가져올 수 없습니다:', ipError);
+                }
                 
                 // 세션 ID 가져오기
                 const sessionId = getOrCreateSessionId();
@@ -1060,10 +1040,7 @@
                             job_3_match_rate: recommendedJobs[2].matchRate,
                             answers: answersString,
                             user_agent: navigator.userAgent,
-                            ip_address: locationData?.ip,
-                            location_country: locationData?.country,
-                            location_region: locationData?.region,
-                            location_city: locationData?.city
+                            ip_address: ipAddress
                         }
                     ]);
                 
