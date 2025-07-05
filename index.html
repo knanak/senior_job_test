@@ -135,45 +135,6 @@
             box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
         }
 
-        .location-screen {
-            display: none;
-            text-align: center;
-            animation: fadeIn 0.8s ease;
-        }
-        
-        .location-screen h2 {
-            color: #333;
-            font-size: 1.8em;
-            margin-bottom: 20px;
-        }
-        
-        .location-screen p {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 30px;
-        }
-        
-        .location-input-wrapper {
-            margin: 30px auto;
-            max-width: 400px;
-        }
-        
-        .location-input {
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 1.1em;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        .location-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
         .question-screen {
             display: none;
             animation: slideIn 0.5s ease;
@@ -519,28 +480,7 @@
                     총 10개의 질문에 답해주시면,<br>
                     가장 적합한 직업 3가지를 추천해드립니다.
                 </p>
-                <button class="btn" onclick="showLocationScreen()">검사 시작하기</button>
-            </div>
-
-            <!-- 지역 입력 화면 -->
-            <div class="location-screen" id="locationScreen">
-                <h2>거주 지역 정보</h2>
-                <p>
-                    더 정확한 취업 정보 제공을 위해<br>
-                    거주하시는 지역구를 입력해 주세요.
-                </p>
-                <div class="location-input-wrapper">
-                    <input 
-                        type="text" 
-                        id="userLocation" 
-                        class="location-input" 
-                        placeholder="예: 성북구"
-                        onfocus="if(this.placeholder=='예: 성북구'){this.placeholder='';}"
-                        onblur="if(this.placeholder==''){this.placeholder='예: 성북구';}"
-                        onkeypress="if(event.keyCode==13){startTestWithLocation();}"
-                    >
-                </div>
-                <button class="btn" onclick="startTestWithLocation()">검사 시작</button>
+                <button class="btn" onclick="startTest()">검사 시작하기</button>
             </div>
             
             <!-- 질문 화면 -->
@@ -563,7 +503,6 @@
     </div>
 
     <script>
-        
         // Supabase 초기화 - 실제 프로젝트 URL과 ANON KEY로 교체하세요
         const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
         const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
@@ -627,7 +566,6 @@
         // Claude.ai 환경에서는 localStorage를 사용할 수 없으므로 세션 변수로 대체
         let visitorCount = 1;
         let selectedAnswers = []; // 선택한 답변 번호들을 저장
-        let userLocationInput = ''; // 사용자가 입력한 지역 정보 
         
         // 방문자 카운터 관리
         function initVisitorCounter() {
@@ -883,27 +821,6 @@
             }
         ];
 
-        function showLocationScreen() {
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('locationScreen').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('userLocation').focus();
-            }, 100);
-        }
-        
-        function startTestWithLocation() {
-            const locationInput = document.getElementById('userLocation').value.trim();
-            
-            if (!locationInput) {
-                alert('거주하시는 지역구를 입력해 주세요.');
-                document.getElementById('userLocation').focus();
-                return;
-            }
-            
-            userLocationInput = locationInput;
-            startTest();
-        }
-
         let currentQuestion = 0;
         let answers = [];
         let selectedOption = null;
@@ -911,7 +828,6 @@
 
         function startTest() {
             document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('locationScreen').style.display = 'none';
             document.getElementById('questionScreen').style.display = 'block';
             showQuestion();
         }
@@ -1147,7 +1063,7 @@
                             ip_address: locationData?.ip,
                             location_country: locationData?.country,
                             location_region: locationData?.region,
-                            location_city: userLocationInput || null
+                            location_city: locationData?.city
                         }
                     ]);
                 
@@ -1166,11 +1082,6 @@
         }
 
         function restartTest() {
-
-            userLocationInput = '';
-            document.getElementById('locationScreen').style.display = 'none';
-            document.getElementById('userLocation').value = '';
-            
             currentQuestion = 0;
             answers = [];
             selectedAnswers = [];
