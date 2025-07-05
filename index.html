@@ -1490,6 +1490,10 @@
                 box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             `;
             
+            // 오비서 앱 URL 생성 (딥링크 형태로)
+            const appUrl = `comcare://job-search?job=${encodeURIComponent(selectedJob)}&location=${encodeURIComponent(userLocation)}`;
+            const playStoreUrl = `https://play.google.com/store/apps/details?id=chatGPT_for_senior.myapplication&hl=ko`;
+            
             modalContent.innerHTML = `
                 <h2 style="color: #333; margin-bottom: 20px;">${selectedJob} 취업 정보</h2>
                 <p style="color: #666; line-height: 1.8; margin-bottom: 20px;">
@@ -1507,7 +1511,15 @@
                 </p>
                 <div style="display: flex; gap: 15px; justify-content: center;">
                     <button onclick="
-                        window.open('https://play.google.com/store/apps/details?id=chatGPT_for_senior.myapplication&hl=ko', '_blank');
+                        // 딥링크 시도
+                        const appUrl = '${appUrl}';
+                        window.location.href = appUrl;
+                        
+                        // 3초 후 플레이스토어로 이동 (앱이 설치되지 않은 경우)
+                        setTimeout(() => {
+                            window.open('${playStoreUrl}', '_blank');
+                        }, 3000);
+                        
                         document.body.removeChild(this.parentElement.parentElement.parentElement);
                     " 
                             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
