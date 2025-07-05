@@ -102,7 +102,18 @@
             animation: fadeIn 0.8s ease 0.4s both;
         }
 
-        .visitor-counter h3 {
+        .visitor-stats {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item h3 {
             color: #667eea;
             font-size: 0.9em;
             margin-bottom: 5px;
@@ -111,11 +122,11 @@
 
         .visitor-count {
             color: #764ba2;
-            font-size: 20em;
+            font-size: 1.8em;
             font-weight: 900;
             margin: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            line-height: 0.8;
+            line-height: 1;
         }
 
         .btn {
@@ -546,6 +557,11 @@
             .option-text {
                 font-size: 1em;
             }
+
+            .visitor-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
     </style>
 </head>
@@ -565,8 +581,16 @@
             <div class="start-screen" id="startScreen">
                 <h2>환영합니다!</h2>
                 <div class="visitor-counter">
-                    <h3>오늘의 방문자</h3>
-                    <p class="visitor-count" id="visitorCount">0</p>
+                    <div class="visitor-stats">
+                        <div class="stat-item">
+                            <h3>오늘의 방문자</h3>
+                            <p class="visitor-count" id="todayVisitorCount">0</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>총 방문자</h3>
+                            <p class="visitor-count" id="totalVisitorCount">0</p>
+                        </div>
+                    </div>
                 </div>
                 <p>
                     이 검사는 귀하의 경험, 선호도, 역량을 바탕으로<br>
@@ -634,10 +658,147 @@
         }
         
         // 전역 변수
-        let visitorCount = 1;
+        let todayVisitorCount = 0;
+        let totalVisitorCount = 0;
         let selectedAnswers = [];
         let userLocation = '';
         
+        // 오늘 날짜를 YYYY-MM-DD 형식으로 반환
+        function getTodayDate() {
+            const today = new Date();
+            return today.getFullYear() + '-' + 
+                   String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                   String(today.getDate()).padStart(2, '0');
+        }
+
+        // 방문자 카운터 초기화 및 업데이트
+        async function initAndUpdateVisitorCounter() {
+            const today = getTodayDate();
+            
+            // Supabase 연결이 되어 있는 경우
+            if (supabase) {
+                try {
+                    // 먼저 방문 기록 추가 (매번 추가됨)
+                    await addVisitRecord();
+                    
+                    // 오늘의 방문자 수 조회
+                    const { data: todayData, error: todayError } = await supabase
+                        .from('senior_job_visits')
+                        .select('*', { count: 'exact' })
+                        .gte('visit_date', today + ' 00:00:00')
+                        .lt('visit_date', today + ' 23:59:59');
+                    
+                    if (!todayError) {
+                        todayVisitorCount = todayData.length || 0;
+                    }
+                    
+                    // 총 방문자 수 조회
+                    const { data: totalData, error: totalError } = await supabase
+                        .from('senior_job_visits')
+                        .select('*', { count: 'exact' });
+                    
+                    if (!totalError) {
+                        totalVisitorCount = totalData.length || 0;
+                    }
+                    
+                } catch (error) {
+                    console.error('방문자 카운터 초기화 오류:', error);
+                    // 오류 시 기본값 사용
+                    setFallbackCounts();
+                }
+            } else {
+                // Supabase가 없는 경우 로컬 카운터 사용
+                setFallbackCounts();
+            }
+            
+            // 카운터 애니메이션 시작
+            animateCounters();
+        }
+
+        // 방문 기록 추가
+        async function addVisitRecord() {
+            if (!supabase) return;
+            
+            try {
+                // IP 주소 가져오기
+                let ipAddress = null;
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    ipAddress = ipData.ip;
+                } catch (ipError) {
+                    console.log('IP 주소를 가져올 수 없습니다:', ipError);
+                    ipAddress = 'unknown';
+                }
+                
+                // 방문 기록 추가
+                const { data, error } = await supabase
+                    .from('senior_job_visits')
+                    .insert([
+                        {
+                            ip_address: ipAddress,
+                            user_agent: navigator.userAgent,
+                            visit_date: new Date().toISOString(),
+                            referrer: document.referrer || null
+                        }
+                    ]);
+                
+                if (error) {
+                    console.error('방문 기록 추가 오류:', error);
+                } else {
+                    console.log('방문 기록이 추가되었습니다.');
+                }
+            } catch (err) {
+                console.error('방문 기록 추가 중 오류:', err);
+            }
+        }
+
+        // 로컬 카운터 설정 (Supabase 미사용시)
+        function setFallbackCounts() {
+            const today = getTodayDate();
+            
+            // 로컬 스토리지에서 카운터 정보 가져오기
+            const lastVisitDate = sessionStorage.getItem('lastVisitDate');
+            const storedTodayCount = parseInt(sessionStorage.getItem('todayVisitorCount') || '0');
+            const storedTotalCount = parseInt(sessionStorage.getItem('totalVisitorCount') || '0');
+            
+            // 날짜가 바뀌었으면 오늘 카운터 초기화
+            if (lastVisitDate !== today) {
+                todayVisitorCount = 1;
+                sessionStorage.setItem('todayVisitorCount', '1');
+                sessionStorage.setItem('lastVisitDate', today);
+            } else {
+                todayVisitorCount = storedTodayCount + 1;
+                sessionStorage.setItem('todayVisitorCount', todayVisitorCount.toString());
+            }
+            
+            // 총 방문자 수 증가
+            totalVisitorCount = storedTotalCount + 1;
+            sessionStorage.setItem('totalVisitorCount', totalVisitorCount.toString());
+        }
+
+        // 카운터 애니메이션
+        function animateCounters() {
+            animateCounter('todayVisitorCount', todayVisitorCount);
+            animateCounter('totalVisitorCount', totalVisitorCount);
+        }
+
+        // 개별 카운터 애니메이션
+        function animateCounter(elementId, targetCount) {
+            const element = document.getElementById(elementId);
+            let currentCount = 0;
+            const increment = Math.max(1, Math.ceil(targetCount / 30));
+            
+            const timer = setInterval(() => {
+                currentCount += increment;
+                if (currentCount >= targetCount) {
+                    currentCount = targetCount;
+                    clearInterval(timer);
+                }
+                element.textContent = currentCount.toLocaleString();
+            }, 50);
+        }
+
         // 세션 ID 생성 또는 가져오기
         function getOrCreateSessionId() {
             // Claude.ai 환경 체크
@@ -687,25 +848,9 @@
             
             return sessionId;
         }
-        
-        // 방문자 카운터 관리
-        function initVisitorCounter() {
-            const countElement = document.getElementById('visitorCount');
-            let currentCount = 0;
-            const targetCount = visitorCount;
-            const increment = Math.ceil(targetCount / 20);
-            const timer = setInterval(() => {
-                currentCount += increment;
-                if (currentCount >= targetCount) {
-                    currentCount = targetCount;
-                    clearInterval(timer);
-                }
-                countElement.textContent = currentCount.toLocaleString();
-            }, 50);
-        }
 
         // 페이지 로드시 방문자 카운터 초기화
-        window.addEventListener('DOMContentLoaded', initVisitorCounter);
+        window.addEventListener('DOMContentLoaded', initAndUpdateVisitorCounter);
 
         // 지역구 입력 화면 표시
         function showLocationScreen() {
