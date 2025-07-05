@@ -3,198 +3,1550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>시니어 재취업 적성 검사 썸네일</title>
+    <title>시니어 재취업 적성 검사 - 나에게 맞는 직업 찾기</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👔</text></svg>">
+    
+    <!-- Supabase 클라이언트 추가 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            box-sizing: border-box;
         }
-        
-        .thumbnail {
-            width: 1200px;
-            height: 630px;
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
             position: relative;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
-        
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
         .content {
-            text-align: center;
-            color: white;
-            z-index: 3;
-            max-width: 800px;
             padding: 40px;
         }
-        
-        .title {
-            font-size: 4rem;
-            font-weight: bold;
+
+        .start-screen {
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .start-screen h2 {
+            color: #333;
+            font-size: 2em;
             margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            line-height: 1.2;
         }
-        
-        .subtitle {
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            opacity: 0.9;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-        
-        .features {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
+
+        .start-screen p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.8;
             margin-bottom: 30px;
         }
-        
-        .feature {
-            background: rgba(255,255,255,0.95);
-            padding: 15px 25px;
-            border-radius: 25px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: black;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .highlight-red {
-            color: #e53e3e;
-        }
-        
-        .age-badge {
-            background: rgba(255,255,255,0.95);
-            color: #667eea;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-size: 1.5rem;
-            font-weight: bold;
+
+        .visitor-counter {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
             display: inline-block;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            animation: fadeIn 0.8s ease 0.4s both;
         }
-        
-        .background-pattern {
-            position: absolute;
-            top: 0;
-            left: 0;
+
+        .visitor-counter h3 {
+            color: #667eea;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .visitor-count {
+            color: #764ba2;
+            font-size: 20em;
+            font-weight: 900;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            line-height: 0.8;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        /* 지역구 입력 화면 스타일 */
+        .location-screen {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .location-screen h2 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .location-screen p {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .location-input-container {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .location-input {
             width: 100%;
-            height: 100%;
-            opacity: 0.1;
-            background-image: 
-                radial-gradient(circle at 20% 80%, white 2px, transparent 2px),
-                radial-gradient(circle at 80% 20%, white 2px, transparent 2px),
-                radial-gradient(circle at 40% 40%, white 1px, transparent 1px);
-            background-size: 100px 100px, 120px 120px, 80px 80px;
-            z-index: 1;
+            padding: 20px;
+            font-size: 1.2em;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
         }
-        
-        .icon {
-            position: absolute;
-            top: 50px;
-            right: 50px;
-            font-size: 3rem;
-            opacity: 0.3;
-            z-index: 2;
+
+        .location-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
         }
-        
-        .floating-elements {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
+
+        .location-input::placeholder {
+            color: #adb5bd;
+            font-style: italic;
         }
-        
-        .floating-element {
-            position: absolute;
-            background: rgba(255,255,255,0.1);
+
+        .location-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            margin-top: 20px;
+        }
+
+        .location-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .location-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .back-btn {
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .back-btn:hover {
+            background: #dee2e6;
+        }
+
+        .question-screen {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            color: #333;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            background: #f0f2ff;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-color: #667eea;
+        }
+
+        .option-letter {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
             border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 600;
+            margin-right: 15px;
         }
-        
-        .floating-element:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
+
+        .option-text {
+            color: #333;
+            font-size: 1.1em;
+            display: inline-block;
+            vertical-align: middle;
+            width: calc(100% - 70px);
         }
-        
-        .floating-element:nth-child(2) {
-            width: 60px;
-            height: 60px;
-            top: 20%;
-            right: 15%;
-            animation-delay: 2s;
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            gap: 20px;
         }
-        
-        .floating-element:nth-child(3) {
-            width: 100px;
-            height: 100px;
-            bottom: 15%;
-            left: 15%;
-            animation-delay: 4s;
+
+        .nav-btn {
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        
-        .floating-element:nth-child(4) {
-            width: 70px;
-            height: 70px;
-            bottom: 20%;
-            right: 20%;
-            animation-delay: 1s;
+
+        .nav-btn:hover:not(:disabled) {
+            background: #dee2e6;
         }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
-        
-        .glow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-btn.next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-screen {
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .result-title {
+            text-align: center;
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+
+        .recommended-jobs {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .job-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .job-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .job-rank {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
             border-radius: 50%;
-            z-index: 1;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 600;
+            margin-right: 15px;
+            font-size: 0.9em;
+        }
+
+        .job-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .job-match {
+            color: #667eea;
+            font-weight: 600;
+            float: right;
+        }
+
+        .job-description {
+            color: #666;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .restart-btn {
+            display: block;
+            margin: 30px auto 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .qualification-screen {
+            display: none;
+            animation: fadeIn 0.8s ease;
+            text-align: center;
+        }
+
+        .qualification-screen h2 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .selected-job {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .selected-job-name {
+            color: #667eea;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .qualification-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .qual-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .qual-option:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .qual-option h3 {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .qual-option p {
+            color: #666;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .back-to-results {
+            margin-top: 30px;
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-results:hover {
+            background: #dee2e6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .question-text {
+                font-size: 1.2em;
+            }
+            
+            .option-text {
+                font-size: 1em;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="thumbnail">
-        <div class="background-pattern"></div>
-        <div class="glow"></div>
-        
-        <div class="floating-elements">
-            <div class="floating-element"></div>
-            <div class="floating-element"></div>
-            <div class="floating-element"></div>
-            <div class="floating-element"></div>
+    <div class="container">
+        <div class="header">
+            <h1>시니어 재취업 적성 검사</h1>
+            <p>10개의 질문으로 찾는 나에게 딱 맞는 직업</p>
         </div>
         
-        <div class="icon">💼</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
         
         <div class="content">
-            <div class="title">시니어 재취업<br>적성 검사</div>
-            <div class="subtitle">경험과 역량을 바탕으로 한 맞춤형 직업 추천</div>
+            <!-- 시작 화면 -->
+            <div class="start-screen" id="startScreen">
+                <h2>환영합니다!</h2>
+                <div class="visitor-counter">
+                    <h3>오늘의 방문자</h3>
+                    <p class="visitor-count" id="visitorCount">0</p>
+                </div>
+                <p>
+                    이 검사는 귀하의 경험, 선호도, 역량을 바탕으로<br>
+                    50대 이상 시니어에게 적합한 재취업 직종을 추천해드립니다.<br><br>
+                    총 10개의 질문에 답해주시면,<br>
+                    가장 적합한 직업 3가지를 추천해드립니다.
+                </p>
+                <button class="btn" onclick="showLocationScreen()">검사 시작하기</button>
+            </div>
+
+            <!-- 지역구 입력 화면 -->
+            <div class="location-screen" id="locationScreen">
+                <h2>거주 지역을 입력해 주세요</h2>
+                <p>
+                    더 정확한 취업 정보 제공을 위해<br>
+                    현재 거주하고 계신 지역구를 입력해 주세요.
+                </p>
+                <div class="location-input-container">
+                    <input 
+                        type="text" 
+                        id="locationInput" 
+                        class="location-input" 
+                        placeholder="예 : 성동구"
+                        maxlength="20"
+                        onkeypress="handleLocationKeypress(event)"
+                        oninput="checkLocationInput()"
+                    >
+                    <div style="margin-top: 15px;">
+                        <button class="back-btn" onclick="backToStart()">이전</button>
+                        <button class="location-btn" id="locationBtn" onclick="submitLocation()" disabled>
+                            검사 시작하기
+                        </button>
+                    </div>
+                </div>
+            </div>
             
-            <div class="features">
-                <div class="feature">자가 테스트를 통해 나에게 꼭 맞는 <span class="highlight-red">직업 3가지 추천</span></div>
+            <!-- 질문 화면 -->
+            <div class="question-screen" id="questionScreen">
+                <div class="question-number" id="questionNumber">질문 1/10</div>
+                <h2 class="question-text" id="questionText"></h2>
+                <div class="options" id="options"></div>
+                <div class="navigation">
+                    <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">이전</button>
+                </div>
+            </div>
+            
+            <!-- 결과 화면 -->
+            <div class="result-screen" id="resultScreen">
+                <h2 class="result-title">당신에게 추천하는 직업</h2>
+                <div class="recommended-jobs" id="recommendedJobs"></div>
+                <button class="restart-btn" onclick="restartTest()">다시 검사하기</button>
             </div>
         </div>
     </div>
+
+    <script>
+        // Supabase 초기화 - 실제 프로젝트 URL과 ANON KEY로 교체하세요
+        const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        // Supabase 클라이언트 생성 (조건 변경)
+        let supabase = null;
+        if (SUPABASE_URL.includes('supabase.co') && SUPABASE_ANON_KEY.length > 50) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        
+        // 전역 변수
+        let visitorCount = 1;
+        let selectedAnswers = [];
+        let userLocation = '';
+        
+        // 세션 ID 생성 또는 가져오기
+        function getOrCreateSessionId() {
+            // Claude.ai 환경 체크
+            const isClaudeEnvironment = typeof window !== 'undefined' && 
+                                       window.location && 
+                                       window.location.hostname.includes('claude.ai');
+            
+            let sessionId;
+            
+            if (isClaudeEnvironment) {
+                // Claude.ai 환경에서는 sessionStorage 사용 (localStorage 미지원)
+                sessionId = sessionStorage.getItem('seniorJobTestSessionId');
+                if (!sessionId) {
+                    sessionId = Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+                    sessionStorage.setItem('seniorJobTestSessionId', sessionId);
+                }
+            } else {
+                // 실제 운영 환경에서는 localStorage 사용 (영구 저장)
+                try {
+                    sessionId = localStorage.getItem('seniorJobTestUserId');
+                    if (!sessionId) {
+                        // 새 사용자 ID 생성 (타임스탬프 + 랜덤 문자열)
+                        sessionId = 'user-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+                        localStorage.setItem('seniorJobTestUserId', sessionId);
+                        
+                        // 처음 방문 시간도 저장
+                        localStorage.setItem('seniorJobTestFirstVisit', new Date().toISOString());
+                    }
+                    
+                    // 마지막 방문 시간 업데이트
+                    localStorage.setItem('seniorJobTestLastVisit', new Date().toISOString());
+                    
+                    // 총 방문 횟수 증가
+                    const visitCount = parseInt(localStorage.getItem('seniorJobTestVisitCount') || '0') + 1;
+                    localStorage.setItem('seniorJobTestVisitCount', visitCount.toString());
+                    
+                } catch (e) {
+                    // localStorage 접근 실패 시 (예: 시크릿 모드) sessionStorage 사용
+                    console.log('localStorage를 사용할 수 없습니다. sessionStorage로 대체합니다.');
+                    sessionId = sessionStorage.getItem('seniorJobTestSessionId');
+                    if (!sessionId) {
+                        sessionId = 'temp-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+                        sessionStorage.setItem('seniorJobTestSessionId', sessionId);
+                    }
+                }
+            }
+            
+            return sessionId;
+        }
+        
+        // 방문자 카운터 관리
+        function initVisitorCounter() {
+            const countElement = document.getElementById('visitorCount');
+            let currentCount = 0;
+            const targetCount = visitorCount;
+            const increment = Math.ceil(targetCount / 20);
+            const timer = setInterval(() => {
+                currentCount += increment;
+                if (currentCount >= targetCount) {
+                    currentCount = targetCount;
+                    clearInterval(timer);
+                }
+                countElement.textContent = currentCount.toLocaleString();
+            }, 50);
+        }
+
+        // 페이지 로드시 방문자 카운터 초기화
+        window.addEventListener('DOMContentLoaded', initVisitorCounter);
+
+        // 지역구 입력 화면 표시
+        function showLocationScreen() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('locationScreen').style.display = 'block';
+            document.getElementById('locationInput').focus();
+        }
+
+        // 시작 화면으로 돌아가기
+        function backToStart() {
+            document.getElementById('locationScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+            // 입력값 초기화
+            document.getElementById('locationInput').value = '';
+            checkLocationInput();
+        }
+
+        // 지역구 입력 확인
+        function checkLocationInput() {
+            const input = document.getElementById('locationInput');
+            const btn = document.getElementById('locationBtn');
+            const value = input.value.trim();
+            
+            if (value.length > 0) {
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        }
+
+        // 엔터키 처리
+        function handleLocationKeypress(event) {
+            if (event.key === 'Enter') {
+                const btn = document.getElementById('locationBtn');
+                if (!btn.disabled) {
+                    submitLocation();
+                }
+            }
+        }
+
+        // 지역구 제출
+        function submitLocation() {
+            const input = document.getElementById('locationInput');
+            const location = input.value.trim();
+            
+            if (location.length === 0) {
+                alert('지역구를 입력해 주세요.');
+                input.focus();
+                return;
+            }
+            
+            userLocation = location;
+            console.log('사용자 지역:', userLocation);
+            
+            // 지역구 입력 완료 후 테스트 시작
+            startTest();
+        }
+
+        // 단순화된 직업 카테고리
+        const jobCategories = {
+            "돌봄·간병 종사자": { 
+                category: "돌봄", 
+                physical: "high", 
+                social: "high", 
+                stress: "medium", 
+                skill: "medium", 
+                description: "간병인, 요양보호사 등 환자와 노인 돌봄 서비스를 제공합니다.",
+                keywords: ["요양", "간병인", "요양보호사", "돌봄"]
+            },
+            "아이돌보미": { 
+                category: "돌봄", 
+                physical: "medium", 
+                social: "high", 
+                stress: "medium", 
+                skill: "low", 
+                description: "가정에서 아이들을 돌보고 육아를 지원합니다.",
+                keywords: ["도우미", "아이돌봄", "육아"]
+            },
+            "시설·설비 관리원": { 
+                category: "기술", 
+                physical: "medium", 
+                social: "low", 
+                stress: "medium", 
+                skill: "high", 
+                description: "건물 설비, 시설, 전기 등의 유지보수와 관리를 담당합니다.",
+                keywords: ["설비", "시설", "전기"]
+            },
+            "교육 종사자": { 
+                category: "교육", 
+                physical: "low", 
+                social: "high", 
+                stress: "medium", 
+                skill: "high", 
+                description: "방과후 교사, 시니어 강사 등 교육 분야에서 활동합니다.",
+                keywords: ["교사", "강사", "교육"]
+            },
+            "사회복지사": { 
+                category: "복지", 
+                physical: "low", 
+                social: "high", 
+                stress: "high", 
+                skill: "high", 
+                description: "복지 대상자의 상담과 지원 서비스를 제공합니다.",
+                keywords: ["사회복지사", "복지"]
+            },
+            "환경미화원": { 
+                category: "위생", 
+                physical: "high", 
+                social: "low", 
+                stress: "low", 
+                skill: "low", 
+                description: "건물이나 거리의 청소와 환경 미화를 담당합니다.",
+                keywords: ["미화", "청소", "환경"]
+            },
+            "경비원": { 
+                category: "보안", 
+                physical: "low", 
+                social: "medium", 
+                stress: "low", 
+                skill: "low", 
+                description: "건물이나 시설의 안전을 지키고 출입을 관리합니다.",
+                keywords: ["경비", "보안"]
+            },
+            "운전원": { 
+                category: "운송", 
+                physical: "medium", 
+                social: "medium", 
+                stress: "medium", 
+                skill: "medium", 
+                description: "택시, 버스, 배송 등 운전 업무를 담당합니다.",
+                keywords: ["운전", "택시", "버스", "배송"]
+            },
+            "서비스직 종사자": { 
+                category: "서비스", 
+                physical: "medium", 
+                social: "high", 
+                stress: "medium", 
+                skill: "low", 
+                description: "음식점, 판매점 등에서 고객 서비스를 제공합니다.",
+                keywords: ["서비스", "서빙", "판매"]
+            },
+            "사무직원": { 
+                category: "사무", 
+                physical: "low", 
+                social: "medium", 
+                stress: "medium", 
+                skill: "medium", 
+                description: "일반 사무, 행정 지원 등의 업무를 수행합니다.",
+                keywords: ["사무", "행정", "사무원", "사서", "안내"]
+            },
+            "약국 사무원": { 
+                category: "의료사무", 
+                physical: "low", 
+                social: "high", 
+                stress: "medium", 
+                skill: "medium", 
+                description: "약국에서 처방전 접수, 약품 관리 등 사무 업무를 담당합니다.",
+                keywords: ["약국사무원", "약국", "의료사무"]
+            },
+            "도보 배달원": { 
+                category: "배달", 
+                physical: "high", 
+                social: "low", 
+                stress: "low", 
+                skill: "low", 
+                description: "도보나 자전거로 근거리 배달 업무를 수행합니다.",
+                keywords: ["도보배달원", "배달", "배송"]
+            }
+        };
+
+        // 질문 데이터
+        const questions = [
+            {
+                text: "하루 중 가장 활력이 넘치는 시간대는 언제인가요?",
+                options: [
+                    { text: "아침 일찍 (오전 6-9시)", value: { physical: 2, morning: 3 } },
+                    { text: "오전 중 (오전 9-12시)", value: { physical: 1, morning: 2 } },
+                    { text: "오후 (오후 12-6시)", value: { physical: 1, morning: 1 } },
+                    { text: "저녁 (오후 6시 이후)", value: { physical: 0, morning: 0 } }
+                ]
+            },
+            {
+                text: "사람들과 함께 일하는 것을 얼마나 좋아하시나요?",
+                options: [
+                    { text: "매우 좋아함 - 늘 사람들과 함께 있고 싶음", value: { social: 3 } },
+                    { text: "좋아함 - 적당한 교류를 선호", value: { social: 2 } },
+                    { text: "보통 - 혼자 일하는 것도 괜찮음", value: { social: 1 } },
+                    { text: "혼자 일하는 것을 선호", value: { social: 0 } }
+                ]
+            },
+            {
+                text: "육체적 활동에 대한 선호도는 어떠신가요?",
+                options: [
+                    { text: "활발한 육체 활동을 선호", value: { physical: 3 } },
+                    { text: "적당한 움직임이 있는 일을 선호", value: { physical: 2 } },
+                    { text: "가벼운 활동 정도만 선호", value: { physical: 1 } },
+                    { text: "주로 앉아서 하는 일을 선호", value: { physical: 0 } }
+                ]
+            },
+            {
+                text: "어떤 분야에서 일하고 싶으신가요?",
+                options: [
+                    { text: "돌봄/복지 분야 (사람을 직접 돕는 일)", value: { care: 3, service: 2 } },
+                    { text: "교육/지도 분야 (지식과 경험 전달)", value: { education: 3, social: 2 } },
+                    { text: "기술/관리 분야 (시설이나 장비 관리)", value: { technical: 3, physical: 1 } },
+                    { text: "서비스/사무 분야 (고객 응대 및 행정)", value: { service: 3, office: 2 } }
+                ]
+            },
+            {
+                text: "근무 환경으로 선호하는 곳은?",
+                options: [
+                    { text: "실내 사무실이나 시설", value: { indoor: 3, physical: 0 } },
+                    { text: "실내외를 오가며 일하는 환경", value: { indoor: 2, physical: 1 } },
+                    { text: "주로 야외에서 일하는 환경", value: { outdoor: 3, physical: 2 } },
+                    { text: "이동하며 일하는 환경", value: { mobile: 3, physical: 1 } }
+                ]
+            },
+            {
+                text: "자격증이나 특별한 기술 습득에 대한 의향은?",
+                options: [
+                    { text: "적극적으로 새로운 자격증 취득 희망", value: { learning: 3 } },
+                    { text: "필요하다면 간단한 교육 이수 가능", value: { learning: 2 } },
+                    { text: "기존 경험을 활용하고 싶음", value: { learning: 1 } },
+                    { text: "특별한 교육 없이 바로 일하고 싶음", value: { learning: 0 } }
+                ]
+            },
+            {
+                text: "선호하는 근무 시간대는?",
+                options: [
+                    { text: "정규 근무 시간 (9 to 6)", value: { regular: 3 } },
+                    { text: "파트타임 (하루 2-4시간)", value: { parttime: 3 } },
+                    { text: "교대 근무도 가능", value: { shift: 3 } },
+                    { text: "유연한 근무 시간 선호", value: { flexible: 3 } }
+                ]
+            },
+            {
+                text: "책임감의 정도는 어느 정도를 원하시나요?",
+                options: [
+                    { text: "높은 책임감과 자율성을 가진 업무", value: { responsibility: 3 } },
+                    { text: "적당한 책임감이 있는 업무", value: { responsibility: 2 } },
+                    { text: "명확한 지시에 따르는 업무", value: { responsibility: 1 } },
+                    { text: "단순하고 반복적인 업무", value: { responsibility: 0 } }
+                ]
+            },
+            {
+                text: "가장 중요하게 생각하는 것은?",
+                options: [
+                    { text: "안정적인 소득", value: { income: 3 } },
+                    { text: "일과 삶의 균형", value: { balance: 3, flexible: 2 } },
+                    { text: "사회 기여와 보람", value: { service: 3, satisfaction: 3 } },
+                    { text: "새로운 도전과 성장", value: { learning: 2, satisfaction: 2 } }
+                ]
+            },
+            {
+                text: "과거 경력이나 특기가 있다면 어떤 분야인가요?",
+                options: [
+                    { text: "사무/관리/행정 분야", value: { office: 3 } },
+                    { text: "기술/생산/제조 분야", value: { technical: 3 } },
+                    { text: "서비스/판매 분야", value: { service: 3 } },
+                    { text: "특별한 경력 없음/새로운 도전", value: { new: 3 } }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+        let selectedOption = null;
+        let selectedJob = null;
+
+        function startTest() {
+            document.getElementById('locationScreen').style.display = 'none';
+            document.getElementById('questionScreen').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `질문 ${currentQuestion + 1}/10`;
+            document.getElementById('questionText').textContent = question.text;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.innerHTML = `
+                    <span class="option-letter">${String.fromCharCode(65 + index)}</span>
+                    <span class="option-text">${option.text}</span>
+                `;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            updateProgress();
+            updateNavigation();
+            selectedOption = null;
+        }
+
+        function selectOption(index) {
+            selectedOption = index;
+            
+            document.querySelectorAll('.option').forEach((option, i) => {
+                option.classList.toggle('selected', i === index);
+            });
+            
+            // 선택 후 자동으로 다음 질문으로 이동
+            setTimeout(() => {
+                nextQuestion();
+            }, 300);
+        }
+
+        function nextQuestion() {
+            if (selectedOption === null) return;
+            
+            answers[currentQuestion] = questions[currentQuestion].options[selectedOption].value;
+            selectedAnswers[currentQuestion] = selectedOption + 1; // 1부터 시작하는 번호로 저장
+            
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+        }
+
+        function calculateScores() {
+            const scores = {};
+            
+            // 각 직업별 점수 계산
+            Object.keys(jobCategories).forEach(job => {
+                scores[job] = 0;
+                const jobInfo = jobCategories[job];
+                
+                // 답변과 직업 특성 매칭
+                answers.forEach(answer => {
+                    // 신체 활동 선호도 매칭
+                    if (answer.physical !== undefined) {
+                        if (jobInfo.physical === "high" && answer.physical >= 2) scores[job] += 3;
+                        else if (jobInfo.physical === "medium" && answer.physical >= 1 && answer.physical <= 2) scores[job] += 3;
+                        else if (jobInfo.physical === "low" && answer.physical <= 1) scores[job] += 3;
+                    }
+                    
+                    // 사회적 상호작용 선호도 매칭
+                    if (answer.social !== undefined) {
+                        if (jobInfo.social === "high" && answer.social >= 2) scores[job] += 3;
+                        else if (jobInfo.social === "medium" && answer.social >= 1 && answer.social <= 2) scores[job] += 3;
+                        else if (jobInfo.social === "low" && answer.social <= 1) scores[job] += 3;
+                    }
+                    
+                    // 스트레스 내성과 책임감 매칭
+                    if (answer.responsibility !== undefined) {
+                        if (jobInfo.stress === "high" && answer.responsibility >= 2) scores[job] += 2;
+                        else if (jobInfo.stress === "medium" && answer.responsibility >= 1 && answer.responsibility <= 2) scores[job] += 2;
+                        else if (jobInfo.stress === "low" && answer.responsibility <= 1) scores[job] += 2;
+                    }
+                    
+                    // 기술 숙련도와 학습 의향 매칭
+                    if (answer.learning !== undefined) {
+                        if (jobInfo.skill === "high" && answer.learning >= 2) scores[job] += 2;
+                        else if (jobInfo.skill === "medium" && answer.learning >= 1 && answer.learning <= 2) scores[job] += 2;
+                        else if (jobInfo.skill === "low" && answer.learning <= 1) scores[job] += 2;
+                    }
+                    
+                    // 카테고리별 추가 점수
+                    if (answer.care && jobInfo.category === "돌봄") scores[job] += answer.care * 2;
+                    if (answer.education && jobInfo.category === "교육") scores[job] += answer.education * 2;
+                    if (answer.technical && jobInfo.category === "기술") scores[job] += answer.technical * 2;
+                    if (answer.service && (jobInfo.category === "서비스" || jobInfo.category === "돌봄")) scores[job] += answer.service;
+                    if (answer.office && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += answer.office * 2;
+                    
+                    // 특별 보너스
+                    if (answer.morning && jobInfo.category === "운송") scores[job] += 2;
+                    if (answer.morning && jobInfo.category === "위생") scores[job] += 2;
+                    if (answer.morning && jobInfo.category === "배달") scores[job] += 2;
+                    if (answer.flexible && jobInfo.category === "교육") scores[job] += 2;
+                    
+                    // 파트타임 선택 시 교육 종사자(시니어강사)에 매우 높은 가중치
+                    if (answer.parttime && job === "교육 종사자") scores[job] += 50;
+                    if (answer.parttime && job === "도보 배달원") scores[job] += 2;
+                    
+                    if (answer.regular && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += 2;
+                    if (answer.shift && jobInfo.category === "보안") scores[job] += 2;
+                    
+                    // 근무 환경 매칭
+                    if (answer.indoor && (jobInfo.category === "사무" || jobInfo.category === "교육" || jobInfo.category === "의료사무")) scores[job] += 2;
+                    if (answer.outdoor && (jobInfo.category === "위생" || jobInfo.category === "배달")) scores[job] += 2;
+                    if (answer.mobile && (jobInfo.category === "운송" || jobInfo.category === "배달")) scores[job] += 3;
+                    
+                    // 소득과 만족도 매칭
+                    if (answer.income >= 2 && (jobInfo.category === "기술" || jobInfo.category === "운송")) scores[job] += 1;
+                    if (answer.satisfaction >= 2 && (jobInfo.category === "교육" || jobInfo.category === "복지" || jobInfo.category === "돌봄")) scores[job] += 1;
+                    if (answer.balance >= 2 && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += 1;
+                    
+                    // 경력 매칭
+                    if (answer.office && (jobInfo.category === "사무" || jobInfo.category === "의료사무")) scores[job] += 3;
+                    if (answer.technical && jobInfo.category === "기술") scores[job] += 3;
+                    if (answer.service && jobInfo.category === "서비스") scores[job] += 3;
+                    if (answer.new && jobInfo.skill === "low") scores[job] += 2;
+                });
+            });
+            
+            // 상위 3개 직업 선택
+            const sortedJobs = Object.entries(scores)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([job, score], index) => {
+                    // 1위는 85-95%, 2위는 75-85%, 3위는 65-75%
+                    const baseRate = index === 0 ? 85 : index === 1 ? 75 : 65;
+                    const bonus = Math.min(10, Math.floor(score / 5));
+                    return { 
+                        job, 
+                        score, 
+                        matchRate: baseRate + bonus
+                    };
+                });
+            
+            return sortedJobs;
+        }
+
+        function showResults() {
+            document.getElementById('questionScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            
+            const recommendedJobs = calculateScores();
+            const jobsContainer = document.getElementById('recommendedJobs');
+            jobsContainer.innerHTML = '';
+            
+            recommendedJobs.forEach((result, index) => {
+                const jobInfo = jobCategories[result.job];
+                const jobDiv = document.createElement('div');
+                jobDiv.className = 'job-item';
+                jobDiv.onclick = () => selectJob(result.job);
+                jobDiv.innerHTML = `
+                    <div>
+                        <span class="job-rank">${index + 1}</span>
+                        <span class="job-name">${result.job}</span>
+                        <span class="job-match">${result.matchRate}% 적합</span>
+                    </div>
+                    <div class="job-description">${jobInfo.description}</div>
+                `;
+                jobsContainer.appendChild(jobDiv);
+            });
+            
+            // Supabase에 결과 저장
+            saveResultsToSupabase(recommendedJobs);
+        }
+        
+        // Supabase에 결과 저장하는 함수
+        async function saveResultsToSupabase(recommendedJobs) {
+            // Supabase가 초기화되지 않았으면 저장하지 않음
+            if (!supabase) {
+                console.log('Supabase가 설정되지 않아 결과를 저장하지 않습니다.');
+                return;
+            }
+            
+            try {
+                // IP 주소 가져오기 (선택사항)
+                let ipAddress = null;
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    ipAddress = ipData.ip;
+                } catch (ipError) {
+                    console.log('IP 주소를 가져올 수 없습니다:', ipError);
+                }
+                
+                // 세션 ID 가져오기
+                const sessionId = getOrCreateSessionId();
+                
+                // Claude.ai 환경 체크
+                const isClaudeEnvironment = typeof window !== 'undefined' && 
+                                           window.location && 
+                                           window.location.hostname.includes('claude.ai');
+                
+                // 선택한 답변들을 문자열로 변환 (예: "1,2,4,2,1,2,3,4,1,1")
+                const answersString = selectedAnswers.join(',');
+                
+                // 추가 사용자 정보 수집
+                const isReturningUser = !isClaudeEnvironment && localStorage.getItem('seniorJobTestUserId') ? true : false;
+                const visitCount = !isClaudeEnvironment ? (parseInt(localStorage.getItem('seniorJobTestVisitCount') || '1')) : 1;
+                
+                const { data, error } = await supabase
+                    .from('senior_job_test_results')
+                    .insert([
+                        {
+                            session_id: sessionId,
+                            job_1: recommendedJobs[0].job,
+                            job_1_match_rate: recommendedJobs[0].matchRate,
+                            job_2: recommendedJobs[1].job,
+                            job_2_match_rate: recommendedJobs[1].matchRate,
+                            job_3: recommendedJobs[2].job,
+                            job_3_match_rate: recommendedJobs[2].matchRate,
+                            answers: answersString,
+                            location_city: userLocation,  // 지역구 정보 추가
+                            user_agent: navigator.userAgent,
+                            ip_address: ipAddress
+                        }
+                    ]);
+                
+                if (error) {
+                    console.error('결과 저장 중 오류:', error);
+                } else {
+                    console.log('결과가 성공적으로 저장되었습니다.');
+                    console.log('사용자 ID:', sessionId);
+                    console.log('사용자 지역:', userLocation);
+                    console.log('재방문 사용자:', isReturningUser);
+                    console.log('총 방문 횟수:', visitCount);
+                    console.log('선택한 답변:', answersString);
+                }
+            } catch (err) {
+                console.error('Supabase 연결 오류:', err);
+            }
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            answers = [];
+            selectedAnswers = [];
+            selectedOption = null;
+            selectedJob = null;
+            userLocation = '';
+            
+            // 모든 화면 숨기기
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('questionScreen').style.display = 'none';
+            document.getElementById('locationScreen').style.display = 'none';
+            // 시작 화면 표시
+            document.getElementById('startScreen').style.display = 'block';
+            document.getElementById('progressFill').style.width = '0%';
+            
+            // 입력 필드 초기화
+            document.getElementById('locationInput').value = '';
+            checkLocationInput();
+        }
+        
+        function selectJob(job) {
+            selectedJob = job;
+            const jobInfo = jobCategories[job];
+            
+            // 선택 모달 생성
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                max-width: 500px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            `;
+            
+            modalContent.innerHTML = `
+                <h2 style="color: #333; margin-bottom: 10px;">선택하신 직업</h2>
+                <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+                            border-radius: 15px;
+                            padding: 20px;
+                            margin-bottom: 30px;">
+                    <div style="color: #667eea; font-size: 1.4em; font-weight: 600;">${job}</div>
+                </div>
+                <h3 style="color: #333; margin-bottom: 20px;">관련 경력이나 자격증이 있으신가요?</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div onclick="handleQualification(true); document.body.removeChild(this.parentElement.parentElement.parentElement);"
+                         style="background: white;
+                                border: 2px solid #e9ecef;
+                                border-radius: 15px;
+                                padding: 20px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);"
+                         onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 5px 20px rgba(102, 126, 234, 0.2)';"
+                         onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0, 0, 0, 0.05)';">
+                        <h4 style="color: #333; font-size: 1.2em; margin-bottom: 10px;">📋 경력이나 자격증이 있음</h4>
+                        <p style="color: #666; font-size: 0.95em; line-height: 1.5; margin: 0;">
+                            관련 분야의 경력이나 자격증을 보유하고 있어 바로 지원 가능합니다.
+                        </p>
+                    </div>
+                    <div onclick="handleQualification(false); document.body.removeChild(this.parentElement.parentElement.parentElement);"
+                         style="background: white;
+                                border: 2px solid #e9ecef;
+                                border-radius: 15px;
+                                padding: 20px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);"
+                         onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 5px 20px rgba(102, 126, 234, 0.2)';"
+                         onmouseout="this.style.borderColor='#e9ecef'; this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0, 0, 0, 0.05)';">
+                        <h4 style="color: #333; font-size: 1.2em; margin-bottom: 10px;">📚 경력이나 자격증이 없음</h4>
+                        <p style="color: #666; font-size: 0.95em; line-height: 1.5; margin: 0;">
+                            새롭게 도전하고자 하며, 필요시 교육이나 자격증 취득을 고려하고 있습니다.
+                        </p>
+                    </div>
+                </div>
+                <button onclick="document.body.removeChild(this.parentElement.parentElement);" 
+                        style="margin-top: 20px;
+                               background: #e9ecef;
+                               color: #495057;
+                               border: none;
+                               padding: 12px 30px;
+                               font-size: 1em;
+                               border-radius: 50px;
+                               cursor: pointer;
+                               transition: all 0.3s ease;"
+                        onmouseover="this.style.background='#dee2e6';"
+                        onmouseout="this.style.background='#e9ecef';">
+                    취소
+                </button>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+        
+        function handleQualification(hasQualification) {
+            const jobInfo = jobCategories[selectedJob];
+            
+            // 약국 사무원과 도보 배달원은 자격증 유무와 관계없이 오비서 앱으로 연결
+            if (selectedJob === "약국 사무원" || selectedJob === "도보 배달원") {
+                showObiseoModal();
+                return;
+            }
+            
+            if (hasQualification) {
+                // 고용24로 이동 - 첫 번째 키워드만 사용
+                const searchKeyword = jobInfo.keywords[0];
+                
+                // 제외 검색어 설정
+                const allExcludeKeywords = ['요양', '미화원', '경비', '보안', '운전', '관리소장', '청소원', '시설'];
+                
+                // 검색 키워드에 포함된 단어들을 제외 검색어에서 제거
+                const excludeKeywords = allExcludeKeywords.filter(excludeWord => {
+                    // 현재 직업의 모든 키워드를 확인
+                    return !jobInfo.keywords.some(keyword => 
+                        keyword.includes(excludeWord) || excludeWord.includes(keyword)
+                    );
+                });
+                
+                const baseUrl = 'https://www.work24.go.kr/wk/a/b/1200/retriveDtlEmpSrchList.do';
+                const params = new URLSearchParams({
+                    'srcKeyword': searchKeyword,
+                    'notSrcKeyword': excludeKeywords.join(','),
+                    'region': '11000',
+                    'regionParam': '11000',
+                    'codeDepth1Info': '11000',
+                    'codeDepth2Info': '11000',
+                    'resultCnt': '10',
+                    'sortField': 'DATE',
+                    'sortOrderBy': 'DESC',
+                    'siteClcd': 'all',
+                    'searchMode': 'Y',
+                    'academicGbnoEdu': 'noEdu',
+                    'pageIndex': '1',
+                    'currentPageNo': '1',
+                    'pfMatterPreferential': 'B',  // 중장년 우대 설정
+                    'moreButtonYn': 'Y'
+                });
+                
+                // 새 창에서 고용24 검색 결과 열기
+                const searchUrl = `${baseUrl}?${params.toString()}#scrollLoc`;
+                
+                // 안내 모달 표시
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.7);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    max-width: 500px;
+                    text-align: center;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                `;
+                
+                modalContent.innerHTML = `
+                    <h2 style="color: #333; margin-bottom: 20px;">${selectedJob} 일자리 찾기</h2>
+                    <p style="color: #666; line-height: 1.8; margin-bottom: 30px;">
+                        고용24(Work24) 사이트에서<br>
+                        <strong style="color: #667eea;">"${selectedJob}"</strong> 관련 일자리를 검색합니다.<br><br>
+                        <span style="color: #667eea; font-weight: 600;">중장년 우대</span> 조건으로 검색됩니다.<br>
+                        새 창에서 검색 결과를 확인하실 수 있습니다.
+                    </p>
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button onclick="
+                            window.open('${searchUrl}', '_blank');
+                            document.body.removeChild(this.parentElement.parentElement.parentElement);
+                        " 
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                       color: white; 
+                                       border: none; 
+                                       padding: 15px 30px; 
+                                       border-radius: 50px; 
+                                       cursor: pointer;
+                                       font-size: 1.1em;">
+                            고용24에서 검색하기
+                        </button>
+                        <button onclick="document.body.removeChild(this.parentElement.parentElement.parentElement);" 
+                                style="background: #e9ecef; 
+                                       color: #495057; 
+                                       border: none; 
+                                       padding: 15px 30px; 
+                                       border-radius: 50px; 
+                                       cursor: pointer;
+                                       font-size: 1.1em;">
+                            취소
+                        </button>
+                    </div>
+                `;
+                
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+                
+            } else {
+                showObiseoModal();
+            }
+        }
+        
+        function showObiseoModal() {
+            // 오비서 앱 안내 모달
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            `;
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                max-width: 500px;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            `;
+            
+            // 오비서 앱 URL 생성 (딥링크 형태로)
+            const appUrl = `comcare://job-search?job=${encodeURIComponent(selectedJob)}&location=${encodeURIComponent(userLocation)}`;
+            const playStoreUrl = `https://play.google.com/store/apps/details?id=chatGPT_for_senior.myapplication&hl=ko`;
+            
+            modalContent.innerHTML = `
+                <h2 style="color: #333; margin-bottom: 20px;">${selectedJob} 취업 정보</h2>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 20px;">
+                    <strong style="color: #667eea;">${selectedJob}</strong> 관련 정보를 찾고 계시는군요!
+                </p>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <p style="color: #495057; line-height: 1.6; margin: 0;">
+                        채용 정보와 자격 요건을<br>
+                        <strong style="color: #667eea;">오비서 앱</strong>에서 자세히 알아보세요!
+                    </p>
+                </div>
+                <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">
+                    시니어 맞춤형 취업 정보와<br>
+                    다양한 일자리 정보를 확인하실 수 있습니다.
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="
+                        // 딥링크 시도
+                        const appUrl = '${appUrl}';
+                        window.location.href = appUrl;
+                        
+                        // 3초 후 플레이스토어로 이동 (앱이 설치되지 않은 경우)
+                        setTimeout(() => {
+                            window.open('${playStoreUrl}', '_blank');
+                        }, 3000);
+                        
+                        document.body.removeChild(this.parentElement.parentElement.parentElement);
+                    " 
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                   color: white; 
+                                   border: none; 
+                                   padding: 15px 30px; 
+                                   border-radius: 50px; 
+                                   cursor: pointer;
+                                   font-size: 1.1em;">
+                        오비서 앱에서 자세히 알아보기
+                    </button>
+                    <button onclick="document.body.removeChild(this.parentElement.parentElement.parentElement);" 
+                            style="background: #e9ecef; 
+                                   color: #495057; 
+                                   border: none; 
+                                   padding: 15px 30px; 
+                                   border-radius: 50px; 
+                                   cursor: pointer;
+                                   font-size: 1.1em;">
+                        닫기
+                    </button>
+                </div>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+        }
+    </script>
 </body>
 </html>
