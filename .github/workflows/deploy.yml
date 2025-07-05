@@ -22,9 +22,22 @@ jobs:
       uses: actions/checkout@v4
     
     - name: Replace Secrets in HTML
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
       run: |
-        sed -i "s|YOUR_SUPABASE_PROJECT_URL|${{ secrets.SUPABASE_URL }}|g" index.html
-        sed -i "s|YOUR_SUPABASE_ANON_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g" index.html
+        # 디버깅을 위한 출력
+        echo "Replacing secrets in index.html..."
+        echo "SUPABASE_URL exists: ${{ secrets.SUPABASE_URL != '' }}"
+        echo "SUPABASE_ANON_KEY exists: ${{ secrets.SUPABASE_ANON_KEY != '' }}"
+        
+        # sed 명령어 실행
+        sed -i "s|YOUR_SUPABASE_PROJECT_URL|${SUPABASE_URL}|g" index.html
+        sed -i "s|YOUR_SUPABASE_ANON_KEY|${SUPABASE_ANON_KEY}|g" index.html
+        
+        # 치환 확인
+        echo "Checking if replacement worked..."
+        grep -n "SUPABASE_URL" index.html | head -5
     
     - name: Setup Pages
       uses: actions/configure-pages@v4
