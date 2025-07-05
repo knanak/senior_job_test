@@ -509,7 +509,7 @@
         
         // Supabase 클라이언트 생성 (URL과 KEY가 설정된 경우에만)
         let supabase = null;
-        if (SUPABASE_URL !== 'YOUR_SUPABASE_PROJECT_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+        if (SUPABASE_URL.includes('supabase.co') && SUPABASE_ANON_KEY.length > 50) {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
         
