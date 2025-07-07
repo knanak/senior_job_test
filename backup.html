@@ -958,8 +958,8 @@
             <div class="sidebar-logo">
                 <div class="sidebar-logo-icon">👔</div>
                 <div>
-                    <div class="sidebar-title">시니어 일자리</div>
-                    <div class="sidebar-subtitle">50+ 취업 지원 서비스</div>
+                    <div class="sidebar-title">시니어 케어</div>
+                    <div class="sidebar-subtitle">50+ 전용 서비스</div>
                 </div>
             </div>
         </div>
@@ -991,8 +991,8 @@
     <div class="main-content">
         <div class="container">
             <div class="header">
-                <h1>시니어 일자리 서비스</h1>
-                <p>50+ 맞춤형 취업 지원 서비스</p>
+                <h1>시니어 케어 서비스</h1>
+                <p>50+ 전용 맞춤형 진로 및 취업 지원 서비스</p>
             </div>
             
             <div class="content">
@@ -1097,6 +1097,68 @@
     </div>
 
     <script>
+        // IP 주소와 지역 정보를 가져오는 함수
+        async function getIpAndLocationInfo() {
+            let ipAddress = null;
+            let locationRegion = null;
+            
+            try {
+                // ipapi.co를 사용해서 IP 주소와 지역 정보를 함께 가져오기
+                const locationResponse = await fetch('https://ipapi.co/json/');
+                const locationData = await locationResponse.json();
+                
+                if (locationData.ip) {
+                    ipAddress = locationData.ip;
+                    
+                    // 한국의 지역 정보 매핑
+                    if (locationData.country_code === 'KR' && locationData.region) {
+                        const regionMapping = {
+                            'Seoul': '서울특별시',
+                            'Busan': '부산광역시', 
+                            'Daegu': '대구광역시',
+                            'Incheon': '인천광역시',
+                            'Gwangju': '광주광역시',
+                            'Daejeon': '대전광역시',
+                            'Ulsan': '울산광역시',
+                            'Sejong': '세종특별자치시',
+                            'Gyeonggi': '경기도',
+                            'Gyeonggi-do': '경기도',
+                            'Gangwon': '강원도',
+                            'Gangwon-do': '강원도',
+                            'North Chungcheong': '충청북도',
+                            'South Chungcheong': '충청남도',
+                            'North Jeolla': '전라북도',
+                            'South Jeolla': '전라남도',
+                            'North Gyeongsang': '경상북도',
+                            'South Gyeongsang': '경상남도',
+                            'Jeju': '제주특별자치도'
+                        };
+                        
+                        locationRegion = regionMapping[locationData.region] || 
+                                       regionMapping[locationData.region_code] || 
+                                       locationData.region;
+                    } else {
+                        // 해외인 경우 국가명 사용
+                        locationRegion = locationData.country_name || 'Unknown';
+                    }
+                }
+            } catch (error) {
+                console.log('지역 정보를 가져올 수 없습니다. IP 주소만 가져옵니다:', error);
+                
+                // 지역 정보 실패 시 IP 주소만 가져오기
+                try {
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    ipAddress = ipData.ip;
+                } catch (ipError) {
+                    console.log('IP 주소를 가져올 수 없습니다:', ipError);
+                    ipAddress = 'unknown';
+                }
+            }
+            
+            return { ipAddress, locationRegion };
+        }
+
         // 메인 대시보드 표시
         function showMainDashboard() {
             // 메뉴 active 상태 초기화
@@ -1932,15 +1994,8 @@
             }
             
             try {
-                // IP 주소 가져오기 (선택사항)
-                let ipAddress = null;
-                try {
-                    const ipResponse = await fetch('https://api.ipify.org?format=json');
-                    const ipData = await ipResponse.json();
-                    ipAddress = ipData.ip;
-                } catch (ipError) {
-                    console.log('IP 주소를 가져올 수 없습니다:', ipError);
-                }
+                // IP 주소와 지역 정보 가져오기
+                const { ipAddress, locationRegion } = await getIpAndLocationInfo();
                 
                 // 세션 ID 가져오기
                 const sessionId = getOrCreateSessionId();
@@ -1960,7 +2015,8 @@
                             job_3: recommendedJobs[2].job,
                             job_3_match_rate: recommendedJobs[2].matchRate,
                             answers: answersString,
-                            location_city: window.certUserLocation,  // 지역구 정보 추가
+                            location_city: window.certUserLocation,  // 지역구 정보
+                            location_region: locationRegion,  // IP 기반 지역 정보 추가
                             user_agent: navigator.userAgent,
                             ip_address: ipAddress,
                             test_type: 'certification'
@@ -1972,7 +2028,8 @@
                 } else {
                     console.log('자격증 검사 결과가 성공적으로 저장되었습니다.');
                     console.log('사용자 ID:', sessionId);
-                    console.log('사용자 지역:', window.certUserLocation);
+                    console.log('사용자 지역구:', window.certUserLocation);
+                    console.log('사용자 지역(IP):', locationRegion);
                     console.log('테스트 타입: certification');
                     console.log('선택한 답변:', answersString);
                     console.log('추천 자격증:', recommendedJobs.map(job => certJobCategories[job.job].cert));
@@ -2198,16 +2255,8 @@
             if (!supabase) return;
             
             try {
-                // IP 주소 가져오기
-                let ipAddress = null;
-                try {
-                    const ipResponse = await fetch('https://api.ipify.org?format=json');
-                    const ipData = await ipResponse.json();
-                    ipAddress = ipData.ip;
-                } catch (ipError) {
-                    console.log('IP 주소를 가져올 수 없습니다:', ipError);
-                    ipAddress = 'unknown';
-                }
+                // IP 주소와 지역 정보 가져오기
+                const { ipAddress, locationRegion } = await getIpAndLocationInfo();
                 
                 // 방문 기록 추가
                 const { data, error } = await supabase
@@ -2215,6 +2264,7 @@
                     .insert([
                         {
                             ip_address: ipAddress,
+                            location_region: locationRegion,
                             user_agent: navigator.userAgent,
                             visit_date: new Date().toISOString(),
                             referrer: document.referrer || null
@@ -2225,6 +2275,8 @@
                     console.error('방문 기록 추가 오류:', error);
                 } else {
                     console.log('방문 기록이 추가되었습니다.');
+                    console.log('IP 주소:', ipAddress);
+                    console.log('지역:', locationRegion);
                 }
             } catch (err) {
                 console.error('방문 기록 추가 중 오류:', err);
@@ -2859,15 +2911,8 @@
             }
             
             try {
-                // IP 주소 가져오기 (선택사항)
-                let ipAddress = null;
-                try {
-                    const ipResponse = await fetch('https://api.ipify.org?format=json');
-                    const ipData = await ipResponse.json();
-                    ipAddress = ipData.ip;
-                } catch (ipError) {
-                    console.log('IP 주소를 가져올 수 없습니다:', ipError);
-                }
+                // IP 주소와 지역 정보 가져오기
+                const { ipAddress, locationRegion } = await getIpAndLocationInfo();
                 
                 // 세션 ID 가져오기
                 const sessionId = getOrCreateSessionId();
@@ -2896,7 +2941,8 @@
                             job_3: recommendedJobs[2].job,
                             job_3_match_rate: recommendedJobs[2].matchRate,
                             answers: answersString,
-                            location_city: userLocation,  // 지역구 정보 추가
+                            location_city: userLocation,  // 지역구 정보
+                            location_region: locationRegion,  // IP 기반 지역 정보 추가
                             user_agent: navigator.userAgent,
                             ip_address: ipAddress,
                             test_type: 'job'
@@ -2908,7 +2954,8 @@
                 } else {
                     console.log('결과가 성공적으로 저장되었습니다.');
                     console.log('사용자 ID:', sessionId);
-                    console.log('사용자 지역:', userLocation);
+                    console.log('사용자 지역구:', userLocation);
+                    console.log('사용자 지역(IP):', locationRegion);
                     console.log('테스트 타입: job');
                     console.log('재방문 사용자:', isReturningUser);
                     console.log('총 방문 횟수:', visitCount);
