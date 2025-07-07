@@ -1164,26 +1164,43 @@
             // 메뉴 active 상태 초기화
             updateMenuActive(null);
             
-            // mainDashboard 요소가 존재하는지 확인
-            const mainDashboard = document.getElementById('mainDashboard');
-            if (!mainDashboard) {
-                // 요소가 없으면 페이지 새로고침
-                location.reload();
-                return;
-            }
-            
-            // 모든 화면 숨기기
-            mainDashboard.style.display = 'block';
-            
-            const jobContainer = document.getElementById('jobTestContainer');
-            if (jobContainer) {
-                jobContainer.style.display = 'none';
-            }
-            
             // 자격증 관련 스타일 제거
             const certStyles = document.getElementById('cert-styles');
             if (certStyles) {
                 certStyles.remove();
+            }
+            
+            // mainDashboard 요소가 존재하는지 확인
+            let mainDashboard = document.getElementById('mainDashboard');
+            
+            if (!mainDashboard) {
+                // 요소가 없으면 HTML 복원
+                console.log('메인 대시보드 요소가 없습니다. HTML을 복원합니다.');
+                restoreJobTestHTML();
+                
+                // 복원 후 약간의 지연을 주고 다시 시도
+                setTimeout(() => {
+                    mainDashboard = document.getElementById('mainDashboard');
+                    if (mainDashboard) {
+                        mainDashboard.style.display = 'block';
+                    }
+                    
+                    // 다른 컨테이너들 숨기기
+                    const jobContainer = document.getElementById('jobTestContainer');
+                    if (jobContainer) {
+                        jobContainer.style.display = 'none';
+                    }
+                }, 50);
+                return;
+            }
+            
+            // 메인 대시보드 표시
+            mainDashboard.style.display = 'block';
+            
+            // 다른 컨테이너들 숨기기
+            const jobContainer = document.getElementById('jobTestContainer');
+            if (jobContainer) {
+                jobContainer.style.display = 'none';
             }
         }
 
@@ -1200,25 +1217,36 @@
             selectedJob = null;
             userLocation = '';
             
-            // 모든 직업 검사 화면 숨기기
-            document.getElementById('resultScreen').style.display = 'none';
-            document.getElementById('questionScreen').style.display = 'none';
-            document.getElementById('locationScreen').style.display = 'none';
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('jobTestContainer').style.display = 'none';
+            // DOM 요소들 확인 및 숨기기
+            const resultScreen = document.getElementById('resultScreen');
+            const questionScreen = document.getElementById('questionScreen');
+            const locationScreen = document.getElementById('locationScreen');
+            const startScreen = document.getElementById('startScreen');
+            const jobTestContainer = document.getElementById('jobTestContainer');
             
-            // 메인 대시보드 표시
-            document.getElementById('mainDashboard').style.display = 'block';
+            if (resultScreen) resultScreen.style.display = 'none';
+            if (questionScreen) questionScreen.style.display = 'none';
+            if (locationScreen) locationScreen.style.display = 'none';
+            if (startScreen) startScreen.style.display = 'none';
+            if (jobTestContainer) jobTestContainer.style.display = 'none';
             
             // 프로그레스 바 초기화
-            document.getElementById('progressFill').style.width = '0%';
+            const progressFill = document.getElementById('progressFill');
+            if (progressFill) {
+                progressFill.style.width = '0%';
+            }
             
             // 입력 필드 초기화
             const locationInput = document.getElementById('locationInput');
             if (locationInput) {
                 locationInput.value = '';
-                checkLocationInput();
+                if (typeof checkLocationInput === 'function') {
+                    checkLocationInput();
+                }
             }
+            
+            // 메인 대시보드 표시
+            showMainDashboard();
         }
 
         // 직업 검사 시작
@@ -1226,24 +1254,64 @@
             // 메뉴 active 상태 업데이트
             updateMenuActive(document.querySelector('[onclick="showJobTest()"]'));
             
+            // 자격증 관련 스타일 제거
+            const certStyles = document.getElementById('cert-styles');
+            if (certStyles) {
+                certStyles.remove();
+            }
+            
             // 필요한 DOM 요소들이 존재하는지 확인
+            const mainDashboard = document.getElementById('mainDashboard');
+            const jobTestContainer = document.getElementById('jobTestContainer');
+            let startScreen = document.getElementById('startScreen');
+            let progressFill = document.getElementById('progressFill');
+            
+            // 자격증 검사로 인해 HTML이 변경되었을 경우 복원
+            if (!mainDashboard || !jobTestContainer || !startScreen || !progressFill) {
+                console.log('직업 검사 DOM 요소들이 없습니다. HTML을 복원합니다.');
+                restoreJobTestHTML();
+                
+                // DOM 복원 후 약간의 지연을 주고 다시 실행
+                setTimeout(() => {
+                    showJobTestAfterRestore();
+                }, 50);
+                return;
+            }
+            
+            // DOM 요소들이 모두 있는 경우 바로 실행
+            showJobTestAfterRestore();
+        }
+
+        // HTML 복원 후 직업 검사 시작하는 함수
+        function showJobTestAfterRestore() {
+            // 복원된 요소들 다시 가져오기
             const mainDashboard = document.getElementById('mainDashboard');
             const jobTestContainer = document.getElementById('jobTestContainer');
             const startScreen = document.getElementById('startScreen');
             const progressFill = document.getElementById('progressFill');
             
-            // 필수 요소들이 없으면 페이지 새로고침으로 안전하게 복원
-            if (!mainDashboard || !jobTestContainer || !startScreen || !progressFill) {
-                location.reload();
-                return;
+            // 메인 대시보드 숨기기
+            if (mainDashboard) {
+                mainDashboard.style.display = 'none';
             }
             
-            // 메인 대시보드 숨기기
-            mainDashboard.style.display = 'none';
-            
             // 직업 검사 컨테이너 표시
-            jobTestContainer.style.display = 'block';
-            startScreen.style.display = 'block';
+            if (jobTestContainer) {
+                jobTestContainer.style.display = 'block';
+            }
+            
+            if (startScreen) {
+                startScreen.style.display = 'block';
+            }
+            
+            // 다른 화면들 숨기기
+            const resultScreen = document.getElementById('resultScreen');
+            const questionScreen = document.getElementById('questionScreen');
+            const locationScreen = document.getElementById('locationScreen');
+            
+            if (resultScreen) resultScreen.style.display = 'none';
+            if (questionScreen) questionScreen.style.display = 'none';
+            if (locationScreen) locationScreen.style.display = 'none';
             
             // 직업 검사 초기화
             currentQuestion = 0;
@@ -1254,7 +1322,133 @@
             userLocation = '';
             
             // 프로그레스 바 초기화
-            progressFill.style.width = '0%';
+            if (progressFill) {
+                progressFill.style.width = '0%';
+            }
+            
+            // 입력 필드 초기화
+            const locationInput = document.getElementById('locationInput');
+            if (locationInput) {
+                locationInput.value = '';
+                // checkLocationInput 함수가 있는지 확인 후 호출
+                if (typeof checkLocationInput === 'function') {
+                    checkLocationInput();
+                }
+            }
+        }
+
+        // 직업 검사 HTML 복원 함수
+        function restoreJobTestHTML() {
+            const container = document.querySelector('.container');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div class="header">
+                    <h1>시니어 케어 서비스</h1>
+                    <p>50+ 전용 맞춤형 진로 및 취업 지원 서비스</p>
+                </div>
+                
+                <div class="content">
+                    <!-- 메인 대시보드 -->
+                    <div class="main-dashboard" id="mainDashboard" style="display: none;">
+                        <h2 style="text-align: center; color: #333; font-size: 1.8em; margin-bottom: 20px;">어떤 서비스를 이용하시겠어요?</h2>
+                        
+                        <div class="service-cards">
+                            <div class="service-card" onclick="showJobTest()">
+                                <div class="card-icon">🎯</div>
+                                <h3>나에게 맞는 직업 찾기</h3>
+                                <p>
+                                    10개의 질문으로 50대 이상 시니어에게<br>
+                                    적합한 재취업 직종을 추천해드립니다.<br>
+                                    경험과 선호도를 바탕으로 맞춤 직업을 찾아보세요.
+                                </p>
+                                <div class="card-cta">시작하기 →</div>
+                            </div>
+                            
+                            <div class="service-card" onclick="showCertificationTest()">
+                                <div class="card-icon">📜</div>
+                                <h3>나에게 맞는 자격증 찾기</h3>
+                                <p>
+                                    내일배움카드로 국비지원 받을 수 있는<br>
+                                    자격증 중 가장 적합한 분야를 추천합니다.<br>
+                                    새로운 기술을 배워 전문성을 키워보세요.
+                                </p>
+                                <div class="card-cta">시작하기 →</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 직업 검사 영역 -->
+                    <div class="job-test-container" id="jobTestContainer" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        
+                        <!-- 시작 화면 -->
+                        <div class="start-screen" id="startScreen" style="padding-top: 20px;">
+                            <h2>나에게 맞는 직업 찾기</h2>
+                            <p>
+                                이 검사는 귀하의 경험, 선호도, 역량을 바탕으로<br>
+                                50대 이상 시니어에게 적합한 재취업 직종을 추천해드립니다.<br><br>
+                                총 10개의 질문에 답해주시면,<br>
+                                가장 적합한 직업 3가지를 추천해드립니다.
+                            </p>
+                            <button class="btn" onclick="showLocationScreen()">검사 시작하기</button>
+                            <div style="margin-top: 20px;">
+                                <button class="back-btn" onclick="backToMainDashboard()">메인으로 돌아가기</button>
+                            </div>
+                        </div>
+
+                        <!-- 지역구 입력 화면 -->
+                        <div class="location-screen" id="locationScreen" style="display: none;">
+                            <h2>거주 지역을 입력해 주세요</h2>
+                            <p>
+                                더 정확한 취업 정보 제공을 위해<br>
+                                현재 거주하고 계신 지역구를 입력해 주세요.
+                            </p>
+                            <div class="location-input-container">
+                                <input 
+                                    type="text" 
+                                    id="locationInput" 
+                                    class="location-input" 
+                                    placeholder="예 : 성동구"
+                                    maxlength="20"
+                                    onkeypress="handleLocationKeypress(event)"
+                                    oninput="checkLocationInput()"
+                                >
+                                <div style="margin-top: 15px;">
+                                    <button class="back-btn" onclick="backToStart()">이전</button>
+                                    <button class="location-btn" id="locationBtn" onclick="submitLocation()" disabled>
+                                        검사 시작하기
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 질문 화면 -->
+                        <div class="question-screen" id="questionScreen" style="display: none;">
+                            <div class="question-number" id="questionNumber">질문 1/10</div>
+                            <h2 class="question-text" id="questionText"></h2>
+                            <div class="options" id="options"></div>
+                            <div class="navigation">
+                                <button class="nav-btn" id="prevBtn" onclick="prevQuestion()">이전</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 결과 화면 -->
+                        <div class="result-screen" id="resultScreen" style="display: none;">
+                            <h2 class="result-title">당신에게 추천하는 직업</h2>
+                            <div class="recommended-jobs" id="recommendedJobs"></div>
+                            <button class="restart-btn" onclick="restartTest()">다시 검사하기</button>
+                            <div style="margin-top: 20px;">
+                                <button class="back-btn" onclick="backToMainDashboard()">메인으로 돌아가기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            console.log('직업 검사 HTML이 복원되었습니다.');
         }
 
         // 모바일 메뉴 토글 함수
@@ -2159,8 +2353,22 @@
                 certStyles.remove();
             }
             
-            // 메인 대시보드로 돌아가기
-            showMainDashboard();
+            // 메인 대시보드가 있는지 확인
+            const mainDashboard = document.getElementById('mainDashboard');
+            
+            if (!mainDashboard) {
+                // HTML이 변경되어 있다면 복원 후 메인 대시보드 표시
+                restoreJobTestHTML();
+                setTimeout(() => {
+                    const restoredMainDashboard = document.getElementById('mainDashboard');
+                    if (restoredMainDashboard) {
+                        restoredMainDashboard.style.display = 'block';
+                    }
+                }, 50);
+            } else {
+                // 메인 대시보드로 돌아가기
+                showMainDashboard();
+            }
         }
 
         // Supabase 초기화 - 실제 프로젝트 URL과 ANON KEY로 교체하세요
