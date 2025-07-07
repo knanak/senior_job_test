@@ -1217,6 +1217,10 @@
             selectedJob = null;
             userLocation = '';
             
+            // 저장 플래그 초기화
+            isSavingJobResults = false;
+            isSavingCertResults = false;
+            
             // DOM 요소들 확인 및 숨기기
             const resultScreen = document.getElementById('resultScreen');
             const questionScreen = document.getElementById('questionScreen');
@@ -1320,6 +1324,9 @@
             selectedOption = null;
             selectedJob = null;
             userLocation = '';
+            
+            // 저장 플래그 초기화
+            isSavingJobResults = false;
             
             // 프로그레스 바 초기화
             if (progressFill) {
@@ -1657,6 +1664,9 @@
             window.certSelectedAnswers = []; // 선택한 답변 번호 저장용
             window.certSelectedOption = null;
             window.certUserLocation = '';
+            
+            // 저장 플래그 초기화
+            isSavingCertResults = false;
         }
 
         // 자격증 관련 직업 카테고리
@@ -2175,17 +2185,28 @@
                 jobsContainer.appendChild(jobDiv);
             });
             
-            // Supabase에 자격증 검사 결과 저장
-            saveCertResultsToSupabase(recommendedJobs);
+            // Supabase에 자격증 검사 결과 저장 (중복 방지)
+            if (!isSavingCertResults) {
+                saveCertResultsToSupabase(recommendedJobs);
+            }
         }
 
         // Supabase에 자격증 검사 결과 저장하는 함수
         async function saveCertResultsToSupabase(recommendedJobs) {
+            // 중복 저장 방지
+            if (isSavingCertResults) {
+                console.log('이미 자격증 검사 결과를 저장 중입니다.');
+                return;
+            }
+            
             // Supabase가 초기화되지 않았으면 저장하지 않음
             if (!supabase) {
                 console.log('Supabase가 설정되지 않아 자격증 검사 결과를 저장하지 않습니다.');
                 return;
             }
+            
+            // 저장 시작 플래그 설정
+            isSavingCertResults = true;
             
             try {
                 // IP 주소와 지역 정보 가져오기
@@ -2230,6 +2251,11 @@
                 }
             } catch (err) {
                 console.error('Supabase 연결 오류:', err);
+            } finally {
+                // 저장 완료 후 플래그 해제
+                setTimeout(() => {
+                    isSavingCertResults = false;
+                }, 1000); // 1초 후 플래그 해제
             }
         }
 
@@ -2333,6 +2359,9 @@
             window.certSelectedOption = null;
             window.certUserLocation = '';
             
+            // 저장 플래그 초기화
+            isSavingCertResults = false;
+            
             document.getElementById('certResultScreen').style.display = 'none';
             document.getElementById('certQuestionScreen').style.display = 'none';
             document.getElementById('certLocationScreen').style.display = 'none';
@@ -2386,6 +2415,10 @@
         let totalVisitorCount = 0;
         let selectedAnswers = [];
         let userLocation = '';
+        
+        // 중복 저장 방지를 위한 플래그
+        let isSavingJobResults = false;
+        let isSavingCertResults = false;
         
         // 오늘 날짜를 YYYY-MM-DD 형식으로 반환
         function getTodayDate() {
@@ -3106,17 +3139,28 @@
                 jobsContainer.appendChild(jobDiv);
             });
             
-            // Supabase에 결과 저장
-            saveResultsToSupabase(recommendedJobs);
+            // Supabase에 결과 저장 (중복 방지)
+            if (!isSavingJobResults) {
+                saveResultsToSupabase(recommendedJobs);
+            }
         }
         
         // Supabase에 결과 저장하는 함수
         async function saveResultsToSupabase(recommendedJobs) {
+            // 중복 저장 방지
+            if (isSavingJobResults) {
+                console.log('이미 직업 검사 결과를 저장 중입니다.');
+                return;
+            }
+            
             // Supabase가 초기화되지 않았으면 저장하지 않음
             if (!supabase) {
                 console.log('Supabase가 설정되지 않아 결과를 저장하지 않습니다.');
                 return;
             }
+            
+            // 저장 시작 플래그 설정
+            isSavingJobResults = true;
             
             try {
                 // IP 주소와 지역 정보 가져오기
@@ -3160,7 +3204,7 @@
                 if (error) {
                     console.error('결과 저장 중 오류:', error);
                 } else {
-                    console.log('결과가 성공적으로 저장되었습니다.');
+                    console.log('직업 검사 결과가 성공적으로 저장되었습니다.');
                     console.log('사용자 ID:', sessionId);
                     console.log('사용자 지역구:', userLocation);
                     console.log('사용자 지역(IP):', locationRegion);
@@ -3171,6 +3215,11 @@
                 }
             } catch (err) {
                 console.error('Supabase 연결 오류:', err);
+            } finally {
+                // 저장 완료 후 플래그 해제
+                setTimeout(() => {
+                    isSavingJobResults = false;
+                }, 1000); // 1초 후 플래그 해제
             }
         }
 
@@ -3182,17 +3231,32 @@
             selectedJob = null;
             userLocation = '';
             
+            // 저장 플래그 초기화
+            isSavingJobResults = false;
+            
             // 모든 화면 숨기기
-            document.getElementById('resultScreen').style.display = 'none';
-            document.getElementById('questionScreen').style.display = 'none';
-            document.getElementById('locationScreen').style.display = 'none';
+            const resultScreen = document.getElementById('resultScreen');
+            const questionScreen = document.getElementById('questionScreen');
+            const locationScreen = document.getElementById('locationScreen');
+            const startScreen = document.getElementById('startScreen');
+            const progressFill = document.getElementById('progressFill');
+            
+            if (resultScreen) resultScreen.style.display = 'none';
+            if (questionScreen) questionScreen.style.display = 'none';
+            if (locationScreen) locationScreen.style.display = 'none';
+            
             // 시작 화면 표시
-            document.getElementById('startScreen').style.display = 'block';
-            document.getElementById('progressFill').style.width = '0%';
+            if (startScreen) startScreen.style.display = 'block';
+            if (progressFill) progressFill.style.width = '0%';
             
             // 입력 필드 초기화
-            document.getElementById('locationInput').value = '';
-            checkLocationInput();
+            const locationInput = document.getElementById('locationInput');
+            if (locationInput) {
+                locationInput.value = '';
+                if (typeof checkLocationInput === 'function') {
+                    checkLocationInput();
+                }
+            }
         }
         
         function selectJob(job) {
