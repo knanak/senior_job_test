@@ -1233,8 +1233,8 @@
             }
             
             // 필요한 DOM 요소들이 존재하는지 확인
-            const mainDashboard = document.getElementById('mainDashboard');
-            const jobTestContainer = document.getElementById('jobTestContainer');
+            let mainDashboard = document.getElementById('mainDashboard');
+            let jobTestContainer = document.getElementById('jobTestContainer');
             let startScreen = document.getElementById('startScreen');
             let progressFill = document.getElementById('progressFill');
             
@@ -1244,6 +1244,8 @@
                 restoreJobTestHTML();
                 
                 // 복원 후 다시 요소들 가져오기
+                mainDashboard = document.getElementById('mainDashboard');
+                jobTestContainer = document.getElementById('jobTestContainer');
                 startScreen = document.getElementById('startScreen');
                 progressFill = document.getElementById('progressFill');
             }
@@ -1283,6 +1285,15 @@
             if (progressFill) {
                 progressFill.style.width = '0%';
             }
+            
+            // 입력 필드 초기화
+            const locationInput = document.getElementById('locationInput');
+            if (locationInput) {
+                locationInput.value = '';
+                checkLocationInput();
+            }
+            
+            console.log('직업 검사가 성공적으로 시작되었습니다.');
         }
 
         // 직업 검사 HTML 복원 함수
