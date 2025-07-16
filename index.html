@@ -1853,6 +1853,15 @@
         // 자격증 검사 질문들
         const certQuestions = [
             {
+                text: "내 연령대는?",
+                options: [
+                    { text: "30대", value: {} },
+                    { text: "40대", value: {} },
+                    { text: "50대", value: {} },
+                    { text: "60대", value: {} }
+                ]
+            },
+            {
                 text: "어떤 종류의 작업 환경을 선호하시나요?",
                 options: [
                     { text: "주로 실내에서 일하는 환경", value: { indoor: 3, outdoor: 0 } },
@@ -1922,15 +1931,6 @@
                     { text: "전문성 향상과 경력 개발", value: { growth: 3 } },
                     { text: "사회에 도움이 되는 보람있는 일", value: { social_value: 3 } },
                     { text: "워라밸과 스트레스 없는 환경", value: { balance: 3 } }
-                ]
-            },
-            {
-                text: "업무의 반복성에 대한 선호도는?",
-                options: [
-                    { text: "매일 다양하고 새로운 업무를 하고 싶음", value: { variety: 3, routine: 0 } },
-                    { text: "어느 정도 변화가 있는 업무를 선호", value: { variety: 2, routine: 1 } },
-                    { text: "규칙적이고 예측 가능한 업무를 선호", value: { variety: 0, routine: 3 } },
-                    { text: "반복적이지만 숙련도를 높일 수 있는 업무", value: { variety: 1, routine: 2, skill_focus: 3 } }
                 ]
             },
             {
@@ -2847,12 +2847,12 @@
         // 질문 데이터
         const questions = [
             {
-                text: "하루 중 가장 활력이 넘치는 시간대는 언제인가요?",
+                text: "내 연령대는?",
                 options: [
-                    { text: "아침 일찍 (오전 6-9시)", value: { physical: 2, morning: 3 } },
-                    { text: "오전 중 (오전 9-12시)", value: { physical: 1, morning: 2 } },
-                    { text: "오후 (오후 12-6시)", value: { physical: 1, morning: 1 } },
-                    { text: "저녁 (오후 6시 이후)", value: { physical: 0, morning: 0 } }
+                    { text: "30대", value: {} },
+                    { text: "40대", value: {} },
+                    { text: "50대", value: {} },
+                    { text: "60대", value: {} }
                 ]
             },
             {
